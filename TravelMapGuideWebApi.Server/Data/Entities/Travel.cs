@@ -2,34 +2,33 @@
 using MongoDB.Bson.Serialization.Attributes;
 using System.Text.Json.Serialization;
 
-namespace TravelMapGuideWebApi.Server.Models
+namespace TravelMapGuideWebApi.Server.Data.Entities
 {
     [BsonIgnoreExtraElements]
     public class Travel
     {
 
         [BsonId]
+        [BsonElement("_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; } // Nullable 
 
-        [BsonElement("Name")]
-        [JsonPropertyName("Name")]
+        [BsonElement("name")]
         public string Name { get; set; }
 
-        [BsonElement("Description")]
+        [BsonElement("description")]
         public string Description { get; set; }
 
-        [BsonElement("Location")]
+        [BsonElement("location")]
         public string Location { get; set; }
 
-        [BsonElement("Date")]
+        [BsonElement("date")]
         public DateTime Date { get; set; }
 
-        [BsonElement("Review")]
-        [BsonDefaultValue(0)]
-        public int Review { get; set; }
+        [BsonElement("review_star")]
+        public int StarReview { get; set; } = 0;
 
-        [BsonElement("Cost")]
+        [BsonElement("cost")]
         public int Cost { get; set; }
     }
 }

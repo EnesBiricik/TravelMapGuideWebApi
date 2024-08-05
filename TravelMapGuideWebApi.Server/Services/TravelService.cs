@@ -17,7 +17,6 @@ namespace TravelMapGuideWebApi.Server.Services
         private readonly ITravelRepository _travelRepository;
         private readonly IMapper _mapper;
 
-
         public TravelService(ITravelRepository travelRepository, IValidator<CreateTravelModel> createTravelValidator, IValidator<UpdateTravelModel> updateTravelValidator, IMapper mapper)
         {
             _travelRepository = travelRepository;
@@ -71,11 +70,10 @@ namespace TravelMapGuideWebApi.Server.Services
             }
         }
 
-
         public async Task<Result> DeleteAsync(string id)
         {
 
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
             {
                 return Result.Failure("Id cannot be null.");
             }
@@ -95,10 +93,9 @@ namespace TravelMapGuideWebApi.Server.Services
         {
             try
             {
-                var travelEntities = await _travelRepository.GetAllAsync();
-                var travels = _mapper.Map<IEnumerable<Travel>>(travelEntities);
+                var data = await _travelRepository.GetAllAsync();
 
-                return Result<IEnumerable<Travel>>.Success(travels);
+                return Result<IEnumerable<Travel>>.Success(data);
             }
             catch (Exception ex)
             {
@@ -111,13 +108,12 @@ namespace TravelMapGuideWebApi.Server.Services
         {
             try
             {
-                var travelEntity = await _travelRepository.GetByIdAsync(id);
-                if (travelEntity == null)
+                var data = await _travelRepository.GetByIdAsync(id);
+                if (data == null)
                 {
                     return Result<Travel>.Failure("Travel is not found.");
                 }
-                var result = _mapper.Map<Travel>(travelEntity);
-                return Result<Travel>.Success(result);
+                return Result<Travel>.Success(data);
             }
             catch (Exception ex)
             {

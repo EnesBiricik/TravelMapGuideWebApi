@@ -1,16 +1,17 @@
 ﻿using FluentValidation;
+using System.Reflection;
 using TravelMapGuideWebApi.Server.ValidationRules.FluentValidation;
 
 namespace TravelMapGuideWebApi.Server.Validators
 {
     public static class ValidatorProfileHelper
     {
-        public static List<IValidator> GetValidators()
+        public static List<Assembly> GetValidatorAssemblies()
         {
-            return new List<IValidator>
+            return new List<Assembly>
             {
-                new CreateTravelModelValidator(),
-                new UpdateTravelModelValidator()
+                typeof(CreateTravelModelValidator).Assembly,
+                typeof(UpdateTravelModelValidator).Assembly
             };
         }
     }

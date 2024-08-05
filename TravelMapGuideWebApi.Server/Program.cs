@@ -43,12 +43,14 @@ builder.Services.AddSingleton(mapper);
 //builder.Services.AddTransient<IValidator<CreateTravelModel>, CreateTravelModelValidator>();
 //builder.Services.AddTransient<IValidator<UpdateTravelModel>, UpdateTravelModelValidator>();
 
-//FluentValidation
+// FluentValidation
 builder.Services.AddControllers()
     .AddFluentValidation(x =>
     {
-        x.RegisterValidatorsFromAssembly(typeof(CreateTravelModelValidator).Assembly);
+        // ValidatorProfileHelper'dan tüm validator assembly'lerini alarak kaydet
+        x.RegisterValidatorsFromAssemblies(ValidatorProfileHelper.GetValidatorAssemblies());
     });
+
 
 var app = builder.Build();
 

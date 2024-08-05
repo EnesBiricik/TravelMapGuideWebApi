@@ -1,17 +1,32 @@
-using TravelMapGuideWebApi.Server.Data;
-using TravelMapGuideWebApi.Server.Services;
+using AutoMapper;
+using Portfolio.Business.Business.Helpers;
+using TravelMapGuideWebApi.Server.Configuration;
+using TravelMapGuideWebApi.Server.Data.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.Configure<DatabaseSettings>(
-                builder.Configuration.GetSection("ConnectionStrings"));
-
-builder.Services.AddSingleton<TravelServices>();
 builder.Services.AddControllersWithViews();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add services to the container.
+builder.Services.Configure<DatabaseConfiguration>(builder.Configuration.GetSection("ConnectionStrings"));
+
+builder.Services.AddSingleton<MongoDbService>();
+
+
+var profiles = ProfileHelper.GetProfiles();
+
+var configuration = new MapperConfiguration(opt =>
+{
+    opt.AddProfiles(profiles);
+});
+
+var mapper = configuration.CreateMapper();
+builder.Services.AddSingleton(mapper);
+
+
 
 var app = builder.Build();
 

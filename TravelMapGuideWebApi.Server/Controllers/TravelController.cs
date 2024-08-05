@@ -1,84 +1,55 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TravelMapGuideWebApi.Server.Models;
-using TravelMapGuideWebApi.Server.Services;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
+using TravelMapGuideWebApi.Server.Constants;
+using TravelMapGuideWebApi.Server.Data.Context;
+using TravelMapGuideWebApi.Server.Data.Entities;
 
 namespace TravelMapGuideWebApi.Server.Controllers
 {
-    [Route("api/travel")]
+    [Route("api/[controller]")]
     [ApiController]
     public class TravelController : ControllerBase
     {
-        private readonly TravelServices _travelservices;
-        public TravelController(TravelServices services)
+        private readonly IMongoCollection<Travel> _travels;
+        public TravelController(MongoDbService mongoDbService)
         {
-            _travelservices = services;
+            _travels = mongoDbService.Database.GetCollection<Travel>(CollectionNames.Travels);
         }
 
-        // GET: api/travel
         [HttpGet]
-        public async Task<List<Travel>> Get() => await _travelservices.GetAsync();
-
-        // GET api/travel/66ab7a02f8bc81f29a076150
-        [HttpGet("{id:length(24)}")]
-        public async Task<ActionResult<Travel>> Get(string id)
+        public async Task<IEnumerable<Travel>> Get()
         {
-            Travel travel = await _travelservices.GetAsync(id);
-            if (travel == null)
-            {
-                return NotFound();
-            }
-
-            return travel;
+            return await _travels.Find(FilterDefinition<Travel>.Empty).ToListAsync();
         }
 
-        // POST api/travel
+        [HttpGet("{id}")]
+        public async Task<ActionResult> Get(string id)
+        {
+            var filter = Builders<Travel>.Filter.Eq(x => x.Id, id);
+            var data = _travels.Find(filter).FirstOrDefault();
+            return data == null ? NotFound() : Ok(data);
+        }
+
         [HttpPost]
-        public async Task<ActionResult<Travel>> Post(Travel newTravel)
+        public async Task<ActionResult> Post(Travel model)
         {
-            // `Id` alanını model durumundan çıkarıyoruz.
-            ModelState.Remove(nameof(newTravel.Id));
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            await _travelservices.CreateAsync(newTravel);
-            return CreatedAtAction(nameof(Get), new { id = newTravel.Id }, newTravel);
+            await _travels.InsertOneAsync(model);
+            return CreatedAtAction(nameof(Get),new { id= model.Id },model);
         }
 
-        // PUT api/travel/66ab7a02f8bc81f29a076150
-        [HttpPut("{id:length(24)}")]
-        public async Task<ActionResult> Put(string id, Travel updateStudent)
+        [HttpPut]
+        public async Task<ActionResult> Update(Travel model)
         {
-            Travel travel = await _travelservices.GetAsync(id);
-            if (travel == null)
-            {
-                return NotFound("There is no student with this id: " + id);
-            }
-
-            updateStudent.Id = travel.Id;
-
-            await _travelservices.UpdateAsync(id, updateStudent);
-
-            return Ok("Updated Successfully");
+            await _travels.ReplaceOneAsync(x => x.Id == model.Id, model);
+            return Ok();
         }
 
-        // DELETE api/travel/66ab7a02f8bc81f29a076150f
-        [HttpDelete("{id:length(24)}")]
+        [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(string id)
         {
-            Travel travel = await _travelservices.GetAsync(id);
-            if (travel == null)
-            {
-                return NotFound("There is no student with this id: " + id);
-            }
-
-            await _travelservices.RemoveAsync(id);
-
-            return Ok("Deleted Successfully");
+            await _travels.DeleteOneAsync(x => x.Id == id);
+            return NoContent();
         }
     }
 }

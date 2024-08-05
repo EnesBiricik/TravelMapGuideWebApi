@@ -4,6 +4,9 @@ using MongoDB.Driver;
 using TravelMapGuideWebApi.Server.Constants;
 using TravelMapGuideWebApi.Server.Data.Context;
 using TravelMapGuideWebApi.Server.Data.Entities;
+using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
+using TravelMapGuideWebApi.Server.Models.Travel;
+using TravelMapGuideWebApi.Server.Services;
 
 namespace TravelMapGuideWebApi.Server.Controllers
 {
@@ -11,44 +14,53 @@ namespace TravelMapGuideWebApi.Server.Controllers
     [ApiController]
     public class TravelController : ControllerBase
     {
-        private readonly IMongoCollection<Travel> _travels;
-        public TravelController(MongoDbService mongoDbService)
+        private readonly ITravelService _travelService;
+        public TravelController(ITravelService travelService)
         {
-            _travels = mongoDbService.Database.GetCollection<Travel>(CollectionNames.Travels);
+            _travelService = travelService;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Travel>> Get()
+        public async Task<IActionResult> Get()
         {
-            return await _travels.Find(FilterDefinition<Travel>.Empty).ToListAsync();
+            var result = await _travelService.GetAllAsync();
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(result.Message);
         }
 
+
         [HttpGet("{id}")]
-        public async Task<ActionResult> Get(string id)
+        public async Task<ActionResult> GetById(string id)
         {
-            var filter = Builders<Travel>.Filter.Eq(x => x.Id, id);
-            var data = _travels.Find(filter).FirstOrDefault();
+            var data = _travelService.GetByIdAsync(id);
             return data == null ? NotFound() : Ok(data);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(Travel model)
+        public async Task<IActionResult> Post(CreateTravelModel model)
         {
-            await _travels.InsertOneAsync(model);
-            return CreatedAtAction(nameof(Get),new { id= model.Id },model);
+            var result = await _travelService.CreateAsync(model);
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+            return BadRequest(result.Message);
         }
 
-        [HttpPut]
-        public async Task<ActionResult> Update(Travel model)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Update(string id, UpdateTravelModel model)
         {
-            await _travels.ReplaceOneAsync(x => x.Id == model.Id, model);
+            await _travelService.UpdateAsync(model);
             return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(string id)
         {
-            await _travels.DeleteOneAsync(x => x.Id == id);
+            await _travelService.DeleteAsync(id);
             return NoContent();
         }
     }

@@ -4,6 +4,5 @@
     {
         public static string Travels = "Travels"; //Travel
 
-
     }
 }

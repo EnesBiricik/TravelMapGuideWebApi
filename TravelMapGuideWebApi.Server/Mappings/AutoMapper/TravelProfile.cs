@@ -9,7 +9,8 @@ namespace TravelMapGuideWebApi.Server.Mappings.AutoMapper
         public TravelProfile()
         {
             CreateMap<Travel,CreateTravelModel>().ReverseMap();
-            //..updt
+            CreateMap<Travel,UpdateTravelModel>().ReverseMap();
+            CreateMap<Travel, Travel>().ReverseMap(); //listModel ? mb
         }
     }
 }

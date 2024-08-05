@@ -1,11 +1,8 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.Text.Json.Serialization;
-
-namespace TravelMapGuideWebApi.Server.Data.Entities
+﻿namespace TravelMapGuideWebApi.Server.Models.Travel
 {
-    public class Travel : BaseEntity
+    public class UpdateTravelModel
     {
+        public string Id { get; set; }
         public string Name { get; set; }
 
         public string Description { get; set; }

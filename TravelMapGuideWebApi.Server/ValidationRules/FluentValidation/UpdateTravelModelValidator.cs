@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using TravelMapGuideWebApi.Server.Models.Travel;
+using TravelMapGuideWebApi.Server.Models;
 
 namespace TravelMapGuideWebApi.Server.ValidationRules.FluentValidation
 {
@@ -7,7 +7,9 @@ namespace TravelMapGuideWebApi.Server.ValidationRules.FluentValidation
     {
         public UpdateTravelModelValidator()
         {
-            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.Id)
+                    .NotEmpty()
+                   .Matches(@"^[a-fA-F0-9]{24}$");
             RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Description).NotEmpty();
             RuleFor(x => x.Location).NotEmpty();

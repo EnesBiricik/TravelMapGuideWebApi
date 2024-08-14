@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using FluentValidation.Results;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection.Metadata;
+using System.Text.RegularExpressions;
 using TravelMapGuideWebApi.Server.Data.Entities;
 using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
 using TravelMapGuideWebApi.Server.Helpers;
-using TravelMapGuideWebApi.Server.Models.Travel;
+using TravelMapGuideWebApi.Server.Models;
 
 namespace TravelMapGuideWebApi.Server.Services
 {
@@ -40,7 +38,7 @@ namespace TravelMapGuideWebApi.Server.Services
             try
             {
                 var entity = await _travelRepository.CreateAsync(travel);
-                return Result<Travel>.Success(entity ,"Travel is Created.");
+                return Result<Travel>.Success(entity, "Travel is Created.");
             }
             catch (Exception e)
             {
@@ -48,45 +46,43 @@ namespace TravelMapGuideWebApi.Server.Services
             }
         }
 
-        public async Task<Result> UpdateAsync(UpdateTravelModel travelModel)
+        public async Task<Result<Travel>> UpdateAsync(UpdateTravelModel travelModel)
         {
+
             var validationResult = await _updateTravelValidator.ValidateAsync(travelModel);
             if (!validationResult.IsValid)
             {
                 var errorMessages = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return Result.Failure("Validation failed.", errorMessages);
+                return Result<Travel>.Failure("Validation failed.", errorMessages);
             }
 
-            try
+            var isExist = await _travelRepository.IsExistById(travelModel.Id);
+            if (!isExist)
             {
-                var updateTravel = _mapper.Map<Travel>(travelModel);
+                return Result<Travel>.Failure("Travel is not found.");
+            }
 
-                var result = await _travelRepository.UpdateAsync(updateTravel);
-                return Result.Success("Travel update is successful.");
-            }
-            catch (Exception ex)
+            var updateTravel = _mapper.Map<Travel>(travelModel);
+
+            var result = await _travelRepository.UpdateAsync(updateTravel);
+            if (result == null)
             {
-                return Result.Failure("An error occurred while updating the travel.", ex.Message);
+                return Result<Travel>.Failure("Travel is not found.");
             }
+            return Result<Travel>.Success(result);
         }
 
         public async Task<Result> DeleteAsync(string id)
         {
 
-            if (string.IsNullOrEmpty(id))
+            bool isValid = Regex.IsMatch(id, @"^[a-fA-F0-9]{24}$");
+            if (string.IsNullOrEmpty(id) || !isValid)
             {
-                return Result.Failure("Id cannot be null.");
+                return Result<Travel>.Failure("Travel is not found. Id not matched.");
             }
 
-            try
-            {
-                await _travelRepository.DeleteAsync(id);
-                return Result.Success();
-            }
-            catch (Exception ex)
-            {
-                return Result.Failure("An error occurred while deleting the travel.", ex.Message);
-            }
+            await _travelRepository.DeleteAsync(id);
+            return Result.Success();
         }
 
         public async Task<Result<IEnumerable<Travel>>> GetAllAsync()
@@ -106,19 +102,19 @@ namespace TravelMapGuideWebApi.Server.Services
 
         public async Task<Result<Travel>> GetByIdAsync(string id)
         {
-            try
+
+            bool isValid = Regex.IsMatch(id, @"^[a-fA-F0-9]{24}$");
+            if (!isValid)
             {
-                var data = await _travelRepository.GetByIdAsync(id);
-                if (data == null)
-                {
-                    return Result<Travel>.Failure("Travel is not found.");
-                }
-                return Result<Travel>.Success(data);
+                return Result<Travel>.Failure("Travel is not found. Id not matched.");
             }
-            catch (Exception ex)
+
+            var data = await _travelRepository.GetByIdAsync(id);
+            if (data == null)
             {
-                return Result<Travel>.Failure("An error occurred while getting the travel.", ex.Message);
+                return Result<Travel>.Failure("Travel is not found.");
             }
+            return Result<Travel>.Success(data);
         }
 
     }

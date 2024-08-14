@@ -10,7 +10,8 @@ namespace Portfolio.Business.Business.Helpers
 
             return new List<Profile>
             {
-                new TravelProfile()
+                new TravelProfile(),
+                new UserProfile()
             };
         }
     }

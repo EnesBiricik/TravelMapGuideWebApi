@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
-
-namespace TravelMapGuideWebApi.Server.Models.Travel
+﻿namespace TravelMapGuideWebApi.Server.Models
 {
     public class CreateTravelModel
     {

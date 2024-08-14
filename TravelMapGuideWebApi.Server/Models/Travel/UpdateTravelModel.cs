@@ -1,4 +1,4 @@
-﻿namespace TravelMapGuideWebApi.Server.Models.Travel
+﻿namespace TravelMapGuideWebApi.Server.Models
 {
     public class UpdateTravelModel
     {

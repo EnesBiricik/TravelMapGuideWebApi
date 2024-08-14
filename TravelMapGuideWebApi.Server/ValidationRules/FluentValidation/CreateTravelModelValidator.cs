@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using TravelMapGuideWebApi.Server.Models.Travel;
+using TravelMapGuideWebApi.Server.Models;
 
 namespace TravelMapGuideWebApi.Server.ValidationRules.FluentValidation
 {
@@ -11,7 +11,7 @@ namespace TravelMapGuideWebApi.Server.ValidationRules.FluentValidation
             RuleFor(x => x.Description).NotEmpty();
             RuleFor(x => x.Location).NotEmpty();
             RuleFor(x => x.Date).NotEmpty().LessThanOrEqualTo(DateTime.Now);
-            RuleFor(x => x.StarReview).NotEmpty().InclusiveBetween(1,5);
+            RuleFor(x => x.StarReview).NotEmpty().InclusiveBetween(1, 5);
             RuleFor(x => x.Cost).NotEmpty().GreaterThanOrEqualTo(0);
         }
     }

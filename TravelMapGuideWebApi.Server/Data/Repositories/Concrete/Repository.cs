@@ -1,5 +1,4 @@
 ﻿using MongoDB.Driver;
-using TravelMapGuideWebApi.Server.Constants;
 using TravelMapGuideWebApi.Server.Data.Context;
 using TravelMapGuideWebApi.Server.Data.Entities;
 using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
@@ -49,6 +48,13 @@ namespace TravelMapGuideWebApi.Server.Data.Repositories.Concrete
         public Task<IEnumerable<T>> GetAllAsync(int pageSize, int pageIndex, int pageCount)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<bool> IsExistById(string id)
+        {
+            var result = await _collection.CountDocumentsAsync(x => x.Id == id);
+
+            return result > 0;
         }
     }
 }

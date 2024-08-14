@@ -1,6 +1,6 @@
 ﻿using TravelMapGuideWebApi.Server.Data.Entities;
 using TravelMapGuideWebApi.Server.Helpers;
-using TravelMapGuideWebApi.Server.Models.Travel;
+using TravelMapGuideWebApi.Server.Models;
 
 namespace TravelMapGuideWebApi.Server.Services
 {
@@ -8,7 +8,7 @@ namespace TravelMapGuideWebApi.Server.Services
     {
         Task<Result<IEnumerable<Travel>>> GetAllAsync();
         Task<Result> CreateAsync(CreateTravelModel model);
-        Task<Result> UpdateAsync(UpdateTravelModel travel);
+        Task<Result<Travel>> UpdateAsync(UpdateTravelModel travel);
         Task<Result<Travel>> GetByIdAsync(string id);
         Task<Result> DeleteAsync(string id);
     }

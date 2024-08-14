@@ -9,6 +9,7 @@ namespace TravelMapGuideWebApi.Server.Data.Repositories.Abstract
         Task<T> CreateAsync(T entity);
         Task<T> UpdateAsync(T entity);
         Task DeleteAsync(string id);
+        Task<bool> IsExistById(string id);
 
     }
 }

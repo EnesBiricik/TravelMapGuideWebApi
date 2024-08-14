@@ -1,8 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System.Text.Json.Serialization;
-
-namespace TravelMapGuideWebApi.Server.Data.Entities
+﻿namespace TravelMapGuideWebApi.Server.Data.Entities
 {
     public class Travel : BaseEntity
     {

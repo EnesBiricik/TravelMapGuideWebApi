@@ -6,5 +6,7 @@ namespace TravelMapGuideWebApi.Server.Data.Repositories.Abstract
     {
         Task<User> GetUserByUsernameAsync(string username);
         Task<User> GetUserByEmailAsync(string email);
+        Task<bool> IsUserExistsByUsernameAsync(string identifier);
+        Task<bool> IsUserExistsByEmailAsync(string identifier);
     }
 }

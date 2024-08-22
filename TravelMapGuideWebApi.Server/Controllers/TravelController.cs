@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using TravelMapGuideWebApi.Server.Helpers;
 using TravelMapGuideWebApi.Server.Models;
 using TravelMapGuideWebApi.Server.Services;
 
@@ -10,6 +14,7 @@ namespace TravelMapGuideWebApi.Server.Controllers
     {
         private readonly ITravelService _travelService;
         private readonly ILogger<TravelController> _logger; // If you want logging somethings..
+
 
         public TravelController(ITravelService travelService, ILogger<TravelController> logger)
         {
@@ -37,9 +42,23 @@ namespace TravelMapGuideWebApi.Server.Controllers
             return data.Data == null ? NotFound(data) : Ok(data);
         }
 
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> Post(CreateTravelModel model)
         {
+
+            //get userId with jwtreader
+            var user = JwtTokenReader.ReadUser();
+
+            if (user.UserId != null)
+            {
+                model.UserId = user.UserId;
+            }
+            else
+            {
+                return Unauthorized("Kullanıcı kimliği bulunamadı.");
+            }
+
             var data = await _travelService.CreateAsync(model);
             if (data.IsSuccess)
             {
@@ -65,6 +84,29 @@ namespace TravelMapGuideWebApi.Server.Controllers
         {
             await _travelService.DeleteAsync(id);
             return NoContent();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("[action]")]
+        public async Task<IActionResult> Test()
+        {
+            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+            if (authHeader != null && authHeader.StartsWith("Bearer "))
+            {
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
+                // Token içeriğini incelemek için
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                // Örnek: kullanıcı adını almak
+                var username = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Name).Value;
+                var id = jwtToken.Claims.First(claim => claim.Type == "userId").Value;
+                var role = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Role).Value;
+
+                return Ok(new { Username = username });
+            }
+            return Unauthorized();
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using TravelMapGuideWebApi.Server.Data.Entities;
 using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
 using TravelMapGuideWebApi.Server.Data.Repositories.Concrete;
+using TravelMapGuideWebApi.Server.Enums;
 using TravelMapGuideWebApi.Server.Helpers;
 using TravelMapGuideWebApi.Server.Models;
 
@@ -14,17 +15,20 @@ namespace TravelMapGuideWebApi.Server.Services
     public class UserService : IUserService
     {
         private readonly IValidator<UserRegisterModel> _createUserValidator;
+        private readonly IValidator<UpdateUserModel> _updateUserValidator;
         private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
         private readonly JwtTokenGenerator _tokenGenerator;
 
 
-        public UserService(IUserRepository userRepository, IValidator<UserRegisterModel> createTravelValidator, IMapper mapper, JwtTokenGenerator jwtTokenGenerator)
+        public UserService(IUserRepository userRepository, IValidator<UserRegisterModel> createTravelValidator, IMapper mapper, JwtTokenGenerator jwtTokenGenerator, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
             _createUserValidator = createTravelValidator;
             _mapper = mapper; // entegre edilecek
             _tokenGenerator = jwtTokenGenerator;
+            _roleRepository = roleRepository;
         }
 
         public async Task<Result<TokenResponseModel>> LoginUserAsync(UserLoginModel model)
@@ -36,9 +40,9 @@ namespace TravelMapGuideWebApi.Server.Services
                 return Result<TokenResponseModel>.Failure("Invalid username or password.");
             }
 
-            if (user!= null)
+            if (user != null)
             {
-                var token = _tokenGenerator.GenerateToken(user.Username);
+                var token = _tokenGenerator.GenerateToken(user.Username, user.Role.Name, user.Id);
                 var date = DateTime.UtcNow;
                 var response = new TokenResponseModel
                 {
@@ -66,13 +70,21 @@ namespace TravelMapGuideWebApi.Server.Services
             }
 
 
-            var passwordHash = HashPassword(model.Password);
+            var passwordHash = PasswordHasher.HashPassword(model.Password);
+
+            var userRole = await _roleRepository.GetRoleByNameAsync(Roles.User);
+            if (userRole == null)
+            {
+                return Result.Failure("Default user role not found.");
+            }
 
             var user = new User
             {
                 Username = model.Username,
                 Password = passwordHash,
-                Email = model.Email
+                Email = model.Email,
+                RoleId = userRole.Id,
+                Role = userRole
             };
 
             var result = await _userRepository.CreateAsync(user);
@@ -86,6 +98,13 @@ namespace TravelMapGuideWebApi.Server.Services
 
         public async Task<Result<User>> UpdateUserAsync(UpdateUserModel model)
         {
+            var validateResult = _updateUserValidator.Validate(model);
+            if (!validateResult.IsValid) 
+            {
+                var errors = string.Join("; ", validateResult.Errors.Select(e => e.ErrorMessage));
+                return Result<User>.Failure("Old password is incorrect", errors);
+            }
+
             var user = await _userRepository.GetByIdAsync(model.UserId);
             if (user == null)
             {
@@ -97,28 +116,17 @@ namespace TravelMapGuideWebApi.Server.Services
                 return Result<User>.Failure("Old password is incorrect");
             }
 
-            if (model.NewPassword != model.ConfirmNewPassword)
-            {
-                return Result<User>.Failure("New password and confirmation password do not match");
-            }
-
-            if (!string.IsNullOrEmpty(model.NewPassword))
-            {
-                user.Password = HashPassword(model.NewPassword);
-            }
-
-            if (!string.IsNullOrEmpty(model.Username) && model.Username != user.Username)
+            if (await _userRepository.IsUserExistsByUsernameAsync(model.Username) == true)
             {
                 var isExist = await _userRepository.GetUserByUsernameAsync(model.Username);
-                if (isExist!= null)
+                if (isExist != null)
                 {
                     return Result<User>.Failure("Username already exists");
                 }
                 user.Username = model.Username;
             }
 
-            // E-posta adresi değişikliği kontrolü
-            if (!string.IsNullOrEmpty(model.Email) && model.Email != user.Email)
+            if (await _userRepository.IsUserExistsByEmailAsync(model.Email) == true)
             {
                 var isExist = await _userRepository.GetUserByEmailAsync(model.Username);
                 if (isExist != null)
@@ -128,7 +136,6 @@ namespace TravelMapGuideWebApi.Server.Services
                 user.Email = model.Email;
             }
 
-            // Kullanıcıyı güncelle
             var updateResult = await _userRepository.UpdateAsync(user);
             if (updateResult != null)
             {
@@ -151,17 +158,15 @@ namespace TravelMapGuideWebApi.Server.Services
             return Result.Success();
         }
 
-        private string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(hashBytes);
-        }
-
         private bool VerifyPassword(string password, string storedHash)
         {
-            var hash = HashPassword(password);
+            var hash = PasswordHasher.HashPassword(password);
             return hash == storedHash;
+        }
+
+        public Task<bool> LogoutUserAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }

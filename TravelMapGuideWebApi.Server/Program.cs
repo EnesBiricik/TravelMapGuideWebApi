@@ -11,6 +11,8 @@ using TravelMapGuideWebApi.Server.Configuration;
 using TravelMapGuideWebApi.Server.Data.Context;
 using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
 using TravelMapGuideWebApi.Server.Data.Repositories.Concrete;
+using TravelMapGuideWebApi.Server.Extensions;
+using TravelMapGuideWebApi.Server.Helpers;
 using TravelMapGuideWebApi.Server.Services;
 using TravelMapGuideWebApi.Server.Validators;
 
@@ -20,6 +22,9 @@ logger.Debug("init main");
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpContextAccessor();
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -33,6 +38,7 @@ builder.Services.AddSingleton<MongoDbService>();
 // Repositories
 builder.Services.AddScoped<ITravelRepository, TravelRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 // Services
 builder.Services.AddScoped<ITravelService, TravelService>();
@@ -68,6 +74,9 @@ builder.Host.UseNLog();
 
 var app = builder.Build();
 
+// JwtTokenReader initialize
+JwtTokenReader.Initialize(app.Services.GetRequiredService<IHttpContextAccessor>());
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
@@ -79,30 +88,8 @@ if (app.Environment.IsDevelopment())
 }
 
 
-// Global Exception Handling Middleware
-app.UseExceptionHandler(errorApp =>
-{
-    errorApp.Run(async context =>
-    {
-        context.Response.StatusCode = 500;
-        context.Response.ContentType = "application/json";
-
-        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-        if (exceptionHandlerPathFeature?.Error is Exception ex)
-        {
-            logger.Error(ex, "Stopped program because of exception");
-
-            // JSON response for the error
-            await context.Response.WriteAsJsonAsync(new
-            {
-                error = "Bir hata oluþtu.",
-                details = ex.Message,
-                statusCode = context.Response.StatusCode,
-                errorPage = "/error" // Hata sayfasý için URL
-            });
-        }
-    });
-});
+// Global Exception Handling Middleware -- extension middleware ile kullaným?
+app.UseGlobalExceptionHandling(logger);
 
 app.UseHttpsRedirection();
 

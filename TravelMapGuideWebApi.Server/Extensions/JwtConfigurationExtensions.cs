@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using TravelMapGuideWebApi.Server.Models;
+using TravelMapGuideWebApi.Server.Configuration;
 
 public static class JwtConfigurationExtensions
 {
     public static IServiceCollection AddJwtConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtSettings = configuration.GetSection("Jwt").Get<JwtConfiguration>();
-
-        services.AddSingleton(jwtSettings);
+        services.Configure<JwtConfiguration>(configuration.GetSection("Jwt"));
         services.AddSingleton<JwtTokenGenerator>(sp =>
         {
-            var settings = sp.GetRequiredService<JwtConfiguration>();
-            return new JwtTokenGenerator(settings.SecretKey, settings.Issuer, settings.Audience, settings.ExpiryInHours);
+            var jwtConfig = sp.GetRequiredService<IOptions<JwtConfiguration>>().Value;
+            return new JwtTokenGenerator(jwtConfig);
         });
 
         services.AddAuthentication(options =>
@@ -40,3 +39,4 @@ public static class JwtConfigurationExtensions
         return services;
     }
 }
+

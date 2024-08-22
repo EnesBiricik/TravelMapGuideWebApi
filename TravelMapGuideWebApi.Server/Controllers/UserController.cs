@@ -41,7 +41,6 @@ namespace TravelMapGuideWebApi.Server.Controllers
         }
 
         //token refresh araştırması
-
         [Authorize]
         [HttpGet("[action]")]
         public async Task<IActionResult> Test()
@@ -50,13 +49,12 @@ namespace TravelMapGuideWebApi.Server.Controllers
             if (authHeader != null && authHeader.StartsWith("Bearer "))
             {
                 var token = authHeader.Substring("Bearer ".Length).Trim();
-
-                // Token içeriğini incelemek için
                 var handler = new JwtSecurityTokenHandler();
                 var jwtToken = handler.ReadJwtToken(token);
 
-                // Örnek: kullanıcı adını almak
                 var username = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Name).Value;
+                var id = jwtToken.Claims.First(claim => claim.Type == "userId").Value;
+                var role = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Role).Value;
 
                 return Ok(new { Username = username });
             }
@@ -93,6 +91,18 @@ namespace TravelMapGuideWebApi.Server.Controllers
 
             await _userService.DeleteAsync(id);
             return NoContent();
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Logout()
+        {
+            var result = await _userService.LogoutUserAsync();
+            if (result)
+            {
+                return Ok("Çıkış yapıldı.");
+            }
+
+            return BadRequest("Çıkış yapılamadı.");
         }
     }
 }

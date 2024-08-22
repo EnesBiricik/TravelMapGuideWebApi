@@ -13,7 +13,6 @@ public class UserRepository : Repository<User, string>, IUserRepository
         _users = mongoDbService.Database.GetCollection<User>(CollectionNames.Users);
 
     }
-    //BOOL ile tek kontrol
     public async Task<User> GetUserByUsernameAsync(string username)
     {
         return await _users.Find(u => u.Username == username).FirstOrDefaultAsync();
@@ -24,4 +23,13 @@ public class UserRepository : Repository<User, string>, IUserRepository
         return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
     }
 
+    public async Task<bool> IsUserExistsByUsernameAsync(string identifier)
+    {
+        return await _users.Find(u => u.Username == identifier).AnyAsync();
+    }
+
+    public async Task<bool> IsUserExistsByEmailAsync(string identifier)
+    {
+        return await _users.Find(u => u.Email == identifier).AnyAsync();
+    }
 }

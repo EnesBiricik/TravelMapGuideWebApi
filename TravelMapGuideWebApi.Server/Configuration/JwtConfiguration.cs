@@ -1,4 +1,4 @@
-﻿namespace TravelMapGuideWebApi.Server.Models
+﻿namespace TravelMapGuideWebApi.Server.Configuration
 {
     public class JwtConfiguration
     {
@@ -7,5 +7,4 @@
         public string Audience { get; set; }
         public int ExpiryInHours { get; set; }
     }
-
 }

@@ -45,7 +45,6 @@ namespace TravelMapGuideWebApi.Server.Services
                 return Result.Failure("An error occurred while creating the travel.", e.Message);
             }
         }
-
         public async Task<Result<Travel>> UpdateAsync(UpdateTravelModel travelModel)
         {
 
@@ -71,7 +70,6 @@ namespace TravelMapGuideWebApi.Server.Services
             }
             return Result<Travel>.Success(result);
         }
-
         public async Task<Result> DeleteAsync(string id)
         {
 
@@ -84,7 +82,6 @@ namespace TravelMapGuideWebApi.Server.Services
             await _travelRepository.DeleteAsync(id);
             return Result.Success();
         }
-
         public async Task<Result<IEnumerable<Travel>>> GetAllAsync()
         {
             try
@@ -98,8 +95,6 @@ namespace TravelMapGuideWebApi.Server.Services
                 return Result<IEnumerable<Travel>>.Failure("An error occurred while getting travels.", ex.Message);
             }
         }
-
-
         public async Task<Result<Travel>> GetByIdAsync(string id)
         {
 
@@ -116,6 +111,5 @@ namespace TravelMapGuideWebApi.Server.Services
             }
             return Result<Travel>.Success(data);
         }
-
     }
 }

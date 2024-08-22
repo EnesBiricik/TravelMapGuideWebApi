@@ -2,6 +2,7 @@
 {
     public class Travel : BaseEntity
     {
+        public string userId { get; set; }
         public string Name { get; set; }
 
         public string Description { get; set; }

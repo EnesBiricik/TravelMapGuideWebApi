@@ -11,5 +11,6 @@ namespace TravelMapGuideWebApi.Server.Services
         Task<Result<TokenResponseModel>> LoginUserAsync(UserLoginModel model);
         Task<Result<User>> UpdateUserAsync(UpdateUserModel model);
         Task<Result> DeleteAsync(string id);
+        Task<bool> LogoutUserAsync();
     }
 }

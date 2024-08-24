@@ -1,28 +1,28 @@
 import { Router, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import './App.css';
 import ErrorPage from './pages/ErrorPage';
-import Home from './pages/Home';
-
+import HomePage from './pages/HomePage';
+import RootLayout from './components/layout/RootLayout';
 
 const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <RootLayout />,
-      errorElement: <ErrorPage />,
-      children: [
-        {path:"/", element:<Home/>},
-        {path:"/ErrorPage", element:<ErrorPage />},
-      ]
-    }
-  ])
+  {
+    path: "/",
+    element: <RootLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      { path: "/", element: <HomePage /> },
+      { path: "/ErrorPage", element: <ErrorPage /> },
+    ]
+  }
+])
 
 function App() {
 
-    return (
-        <>
-        <RouterProvider router={router}/>
-      </>
-    );
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
+  )
 }
 
-export default App;
+export default App

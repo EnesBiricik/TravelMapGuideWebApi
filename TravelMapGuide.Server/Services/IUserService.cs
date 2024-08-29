@@ -9,8 +9,8 @@ namespace TravelMapGuideWebApi.Server.Services
     {
         Task<Result> RegisterUserAsync(UserRegisterModel model);
         Task<Result<TokenResponseModel>> LoginUserAsync(UserLoginModel model);
-        Task<Result<User>> UpdateUserAsync(UpdateUserModel model);
+        Task<Result<User>> UpdateUserAsync(UpdateUserModel model, string oldToken);
         Task<Result> DeleteAsync(string id);
-        Task<bool> LogoutUserAsync();
+        Task<bool> LogoutAsync(string token);
     }
 }

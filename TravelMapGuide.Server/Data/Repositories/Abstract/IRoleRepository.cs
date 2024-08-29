@@ -2,8 +2,8 @@
 
 namespace TravelMapGuideWebApi.Server.Data.Repositories.Abstract
 {
-    public interface IRoleRepository : IRepository<UserRole>
+    public interface IRoleRepository : IRepository<Role>
     {
-        Task<UserRole?> GetRoleByNameAsync(string roleName);
+        Task<Role?> GetRoleByNameAsync(string roleName);
     }
 }

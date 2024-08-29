@@ -62,20 +62,26 @@ namespace TravelMapGuideWebApi.Server.Controllers
             return Unauthorized();
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPut("[action]")]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel model)
+        public async Task<IActionResult> Update([FromBody] UpdateUserModel model)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (model.UserId != userId)
+            var userId = User.FindFirstValue("userId");
+            if (userId != null)
             {
-                return Forbid();
+                model.UserId = userId;
             }
 
-            var result = await _userService.UpdateUserAsync(model);
+            var oldToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            var result = await _userService.UpdateUserAsync(model, oldToken);
             if (result.IsSuccess)
             {
-                return Ok(result);
+                return Ok(new
+                {
+                    User = result.Data,
+                    NewToken = result.NewToken
+                });
             }
             return result.Data == null ? NotFound(result) : Ok(result);
         }
@@ -88,7 +94,6 @@ namespace TravelMapGuideWebApi.Server.Controllers
             {
                 return Forbid();
             }
-
             await _userService.DeleteAsync(id);
             return NoContent();
         }
@@ -96,12 +101,12 @@ namespace TravelMapGuideWebApi.Server.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Logout()
         {
-            var result = await _userService.LogoutUserAsync();
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var result = await _userService.LogoutAsync(token);
             if (result)
             {
                 return Ok("Çıkış yapıldı.");
             }
-
             return BadRequest("Çıkış yapılamadı.");
         }
     }

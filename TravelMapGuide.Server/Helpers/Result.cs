@@ -6,21 +6,25 @@
         public string Message { get; }
         public string Error { get; }
 
-        protected Result(bool isSuccess, string message, string error = null)
+        // Yeni Token Özelliği
+        public string NewToken { get; }
+
+        protected Result(bool isSuccess, string message, string error = null, string newToken = null)
         {
             IsSuccess = isSuccess;
             Message = message;
             Error = error;
+            NewToken = newToken;
         }
 
-        public static Result Success(string message = "Action successful.")
+        public static Result Success(string message = "Action successful.", string newToken = null)
         {
-            return new Result(true, message);
+            return new Result(true, message, null, newToken);
         }
 
-        public static Result Failure(string message, string error = null)
+        public static Result Failure(string message, string error = null, string newToken = null)
         {
-            return new Result(false, message, error);
+            return new Result(false, message, error, newToken);
         }
     }
 

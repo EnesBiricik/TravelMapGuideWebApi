@@ -8,7 +8,7 @@ namespace TravelMapGuideWebApi.Server.ValidationRules.FluentValidation
         public UpdateUserModelValidator()
         {
             RuleFor(x => x)
-                .Must(x => x.OldPassword != x.NewPassword)
+                .Must(x => x.OldPassword != x.NewPassword).When(x=> x.NewPassword!= "" && x.OldPassword!= "")
                 .WithMessage("New password must be different from the old password.");
 
             RuleFor(x => x.NewPassword)

@@ -12,6 +12,7 @@ namespace TravelMapGuideWebApi.Server.Validators
                 typeof(CreateTravelModelValidator).Assembly,
                 typeof(UpdateTravelModelValidator).Assembly,
                 typeof(UserRegisterModelValidator).Assembly,
+                typeof(UpdateUserModelValidator).Assembly
             };
         }
     }

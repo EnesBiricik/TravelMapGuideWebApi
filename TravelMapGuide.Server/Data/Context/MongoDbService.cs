@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using NLog;
 using TravelMapGuideWebApi.Server.Configuration;
+using TravelMapGuideWebApi.Server.Constants;
 using TravelMapGuideWebApi.Server.Data.Entities;
 using TravelMapGuideWebApi.Server.Enums;
 using TravelMapGuideWebApi.Server.Helpers;
@@ -11,7 +12,7 @@ namespace TravelMapGuideWebApi.Server.Data.Context
     public class MongoDbService
     {
         private readonly IMongoDatabase _database;
-        private readonly IMongoCollection<UserRole> _rolesCollection;
+        private readonly IMongoCollection<Role> _rolesCollection;
         private readonly IMongoCollection<User> _usersCollection;
         private readonly IMongoCollection<Travel> _travelCollection;
         //tabloları ekle.
@@ -32,9 +33,9 @@ namespace TravelMapGuideWebApi.Server.Data.Context
                 }
                 _database = mongoClient.GetDatabase(configuration.Value.DatabaseName);
 
-                _rolesCollection = CheckAndCreateCollection<UserRole>("UserRoles");
-                _usersCollection = CheckAndCreateCollection<User>("Users");
-                _travelCollection = CheckAndCreateCollection<Travel>("Travels");
+                _rolesCollection = CheckAndCreateCollection<Role>(CollectionNames.Roles);
+                _usersCollection = CheckAndCreateCollection<User>(CollectionNames.Users);
+                _travelCollection = CheckAndCreateCollection<Travel>(CollectionNames.Travels);
                 //tabloyu oluşturr.
 
                 CreateDefaultRolesIfNotExists();
@@ -84,7 +85,7 @@ namespace TravelMapGuideWebApi.Server.Data.Context
 
                 if (existingUserRole == null)
                 {
-                    var newUserRole = new UserRole
+                    var newUserRole = new Role
                     {
                         Name = userRole,
                         NormalizedName = userRole.ToUpper()
@@ -94,7 +95,7 @@ namespace TravelMapGuideWebApi.Server.Data.Context
 
                 if (existingAdminRole == null)
                 {
-                    var newAdminRole = new UserRole
+                    var newAdminRole = new Role
                     {
                         Name = adminRole,
                         NormalizedName = adminRole.ToUpper()
@@ -108,7 +109,6 @@ namespace TravelMapGuideWebApi.Server.Data.Context
                 throw;
             }
         }
-
         private void CreateAdminUserIfNotExists()
         {
             try

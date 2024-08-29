@@ -6,20 +6,20 @@ using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
 
 namespace TravelMapGuideWebApi.Server.Data.Repositories.Concrete
 {
-    public class RoleRepository : Repository<UserRole, string>, IRoleRepository
+    public class RoleRepository : Repository<Role, string>, IRoleRepository
     {
-        private readonly IMongoCollection<UserRole> _rolesCollection;
+        private readonly IMongoCollection<Role> _rolesCollection;
 
         public RoleRepository(MongoDbService mongoDbService)
             : base(mongoDbService, CollectionNames.Roles)
         {
-            _rolesCollection = mongoDbService.Database.GetCollection<UserRole>(CollectionNames.Roles);
+            _rolesCollection = mongoDbService.Database.GetCollection<Role>(CollectionNames.Roles);
         }
 
-        public async Task<UserRole?> GetRoleByNameAsync(string roleName)
+        public async Task<Role?> GetRoleByNameAsync(string roleName)
         {
             return await _rolesCollection
-                .Find(role => role.Name == roleName)
+                .Find(role => role.Name.ToLower() == roleName.ToLower())
                 .FirstOrDefaultAsync();
         }
     }

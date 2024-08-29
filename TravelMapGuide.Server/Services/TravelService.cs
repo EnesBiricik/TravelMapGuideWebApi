@@ -20,7 +20,7 @@ namespace TravelMapGuideWebApi.Server.Services
             _travelRepository = travelRepository;
             _createTravelValidator = createTravelValidator;
             _updateTravelValidator = updateTravelValidator;
-            _mapper = mapper; // entegre edilecek
+            _mapper = mapper;
         }
 
         public async Task<Result> CreateAsync(CreateTravelModel model)

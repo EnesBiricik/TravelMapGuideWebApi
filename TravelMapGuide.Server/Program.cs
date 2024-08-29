@@ -7,6 +7,9 @@ using NLog;
 using NLog.Web;
 using Portfolio.Business.Business.Helpers;
 using System.Text;
+using TravelMapGuide.Server.Data.Repositories.Abstract;
+using TravelMapGuide.Server.Data.Repositories.Concrete;
+using TravelMapGuide.Server.Services;
 using TravelMapGuideWebApi.Server.Configuration;
 using TravelMapGuideWebApi.Server.Data.Context;
 using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
@@ -26,6 +29,26 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -39,10 +62,13 @@ builder.Services.AddSingleton<MongoDbService>();
 builder.Services.AddScoped<ITravelRepository, TravelRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IBlacklistRepository, BlacklistRepository>();
+builder.Services.AddSingleton<IBlacklistRepository, BlacklistRepository>();
 
 // Services
 builder.Services.AddScoped<ITravelService, TravelService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBlacklistService, BlacklistService>();
 
 var profiles = ProfileHelper.GetProfiles();
 
@@ -58,7 +84,6 @@ builder.Services.AddSingleton(mapper);
 builder.Services.AddJwtConfiguration(builder.Configuration);
 
 builder.Services.AddAuthorization();
-
 
 // FluentValidation
 #pragma warning disable CS0618 // Tür veya üye artýk kullanýlmýyor
@@ -91,6 +116,7 @@ if (app.Environment.IsDevelopment())
 // Global Exception Handling Middleware -- extension middleware ile kullaným?
 app.UseGlobalExceptionHandling(logger);
 
+app.UseCors("AllowSpecificOrigins"); // veya "AllowAllOrigins"
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

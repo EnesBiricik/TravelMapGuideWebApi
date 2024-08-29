@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TravelMapGuide.Server.Services;
 using TravelMapGuideWebApi.Server.Configuration;
 
 public static class JwtConfigurationExtensions
@@ -33,6 +34,23 @@ public static class JwtConfigurationExtensions
                 ValidIssuer = jwtSettings.Issuer,
                 ValidAudience = jwtSettings.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+            };
+
+            // Blacklist kontrolü
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = async context =>
+                {
+                    var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                    var blacklistService = context.HttpContext.RequestServices.GetRequiredService<IBlacklistService>();
+                    var isBlacklisted = await blacklistService.IsTokenBlacklistedAsync(token);
+
+                    if (isBlacklisted)
+                    {
+                        context.Fail("This token has been blacklisted.");
+                    }
+                }
             };
         });
 

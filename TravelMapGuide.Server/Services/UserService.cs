@@ -3,6 +3,7 @@ using FluentValidation;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using TravelMapGuide.Server.Services;
 using TravelMapGuideWebApi.Server.Data.Entities;
 using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
 using TravelMapGuideWebApi.Server.Data.Repositories.Concrete;
@@ -20,15 +21,19 @@ namespace TravelMapGuideWebApi.Server.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
         private readonly JwtTokenGenerator _tokenGenerator;
+        private readonly IBlacklistService _blacklistService;
 
 
-        public UserService(IUserRepository userRepository, IValidator<UserRegisterModel> createTravelValidator, IMapper mapper, JwtTokenGenerator jwtTokenGenerator, IRoleRepository roleRepository)
+
+        public UserService(IUserRepository userRepository, IValidator<UserRegisterModel> createTravelValidator, IMapper mapper, JwtTokenGenerator jwtTokenGenerator, IRoleRepository roleRepository, IBlacklistService blacklistService, IValidator<UpdateUserModel> updateUserValidator)
         {
             _userRepository = userRepository;
             _createUserValidator = createTravelValidator;
             _mapper = mapper; // entegre edilecek
             _tokenGenerator = jwtTokenGenerator;
             _roleRepository = roleRepository;
+            _blacklistService = blacklistService;
+            _updateUserValidator = updateUserValidator;
         }
 
         public async Task<Result<TokenResponseModel>> LoginUserAsync(UserLoginModel model)
@@ -96,13 +101,13 @@ namespace TravelMapGuideWebApi.Server.Services
 
         }
 
-        public async Task<Result<User>> UpdateUserAsync(UpdateUserModel model)
+        public async Task<Result<User>> UpdateUserAsync(UpdateUserModel model, string oldToken)
         {
             var validateResult = _updateUserValidator.Validate(model);
             if (!validateResult.IsValid) 
             {
                 var errors = string.Join("; ", validateResult.Errors.Select(e => e.ErrorMessage));
-                return Result<User>.Failure("Old password is incorrect", errors);
+                return Result<User>.Failure("Validate Errors: ", errors);
             }
 
             var user = await _userRepository.GetByIdAsync(model.UserId);
@@ -111,12 +116,17 @@ namespace TravelMapGuideWebApi.Server.Services
                 return Result<User>.Failure("User not found");
             }
 
-            if (!VerifyPassword(model.OldPassword, user.Password))
+            if (model.NewPassword.Length > 0) 
             {
-                return Result<User>.Failure("Old password is incorrect");
+                if (!VerifyPassword(model.OldPassword, user.Password))
+                {
+                    return Result<User>.Failure("Old password is incorrect");
+                }
+
+                user.Password = PasswordHasher.HashPassword(model.NewPassword);
             }
 
-            if (await _userRepository.IsUserExistsByUsernameAsync(model.Username) == true)
+            if (await _userRepository.IsUserExistsByUsernameAsync(user.Username))
             {
                 var isExist = await _userRepository.GetUserByUsernameAsync(model.Username);
                 if (isExist != null)
@@ -126,7 +136,7 @@ namespace TravelMapGuideWebApi.Server.Services
                 user.Username = model.Username;
             }
 
-            if (await _userRepository.IsUserExistsByEmailAsync(model.Email) == true)
+            if (await _userRepository.IsUserExistsByEmailAsync(user.Email))
             {
                 var isExist = await _userRepository.GetUserByEmailAsync(model.Username);
                 if (isExist != null)
@@ -139,7 +149,13 @@ namespace TravelMapGuideWebApi.Server.Services
             var updateResult = await _userRepository.UpdateAsync(user);
             if (updateResult != null)
             {
-                return Result<User>.Success(updateResult);
+                // Eski tokeni blacklist'e ekleyin
+                await _blacklistService.BlacklistTokenAsync(oldToken);
+
+                // Yeni JWT token oluşturulması
+                var newToken = _tokenGenerator.GenerateToken(updateResult.Username, updateResult.Role.Name, user.Id.ToString());
+
+                return Result<User>.Success(updateResult, newToken);
             }
 
             return Result<User>.Failure("Failed to update user");
@@ -164,9 +180,10 @@ namespace TravelMapGuideWebApi.Server.Services
             return hash == storedHash;
         }
 
-        public Task<bool> LogoutUserAsync()
+        public async Task<bool> LogoutAsync(string token)
         {
-            throw new NotImplementedException();
+            await _blacklistService.BlacklistTokenAsync(token);
+            return await _blacklistService.IsTokenBlacklistedAsync(token);
         }
     }
 }

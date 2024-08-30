@@ -1,4 +1,4 @@
-﻿namespace TravelMapGuideWebApi.Server.Enums
+﻿namespace TravelMapGuide.Server.Utilities.Enums
 {
     public static class Roles
     {

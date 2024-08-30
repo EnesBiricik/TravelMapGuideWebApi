@@ -1,4 +1,4 @@
-﻿namespace TravelMapGuideWebApi.Server.Helpers
+﻿namespace TravelMapGuide.Server.Utilities.Helpers
 {
     public class Result
     {

@@ -1,4 +1,4 @@
-﻿namespace TravelMapGuideWebApi.Server.Configuration
+﻿namespace TravelMapGuide.Server.Configuration
 {
     public class JwtConfiguration
     {

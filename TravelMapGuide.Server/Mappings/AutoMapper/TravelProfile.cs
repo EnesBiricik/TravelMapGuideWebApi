@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using TravelMapGuideWebApi.Server.Data.Entities;
-using TravelMapGuideWebApi.Server.Models;
+using TravelMapGuide.Server.Data.Entities;
+using TravelMapGuide.Server.Models;
 
-namespace TravelMapGuideWebApi.Server.Mappings.AutoMapper
+namespace TravelMapGuide.Server.Mappings.AutoMapper
 {
     public class TravelProfile : Profile
     {

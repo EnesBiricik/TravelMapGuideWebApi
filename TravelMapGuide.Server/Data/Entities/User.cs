@@ -1,4 +1,4 @@
-﻿namespace TravelMapGuideWebApi.Server.Data.Entities
+﻿namespace TravelMapGuide.Server.Data.Entities
 {
     public class User : BaseEntity
     {

@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using TravelMapGuideWebApi.Server.ValidationRules.FluentValidation;
+using TravelMapGuide.Server.ValidationRules.FluentValidation;
 
-namespace TravelMapGuideWebApi.Server.Validators
+namespace TravelMapGuide.Server.Utilities.Helpers
 {
     public static class ValidatorProfileHelper
     {

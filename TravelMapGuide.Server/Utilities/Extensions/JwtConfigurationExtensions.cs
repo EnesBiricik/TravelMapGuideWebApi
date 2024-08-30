@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TravelMapGuide.Server.Services;
-using TravelMapGuideWebApi.Server.Configuration;
+using TravelMapGuide.Server.Configuration;
 
 public static class JwtConfigurationExtensions
 {

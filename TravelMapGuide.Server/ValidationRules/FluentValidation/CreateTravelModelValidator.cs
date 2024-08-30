@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using TravelMapGuideWebApi.Server.Models;
+using TravelMapGuide.Server.Models;
 
-namespace TravelMapGuideWebApi.Server.ValidationRules.FluentValidation
+namespace TravelMapGuide.Server.ValidationRules.FluentValidation
 {
     public class CreateTravelModelValidator : AbstractValidator<CreateTravelModel>
     {

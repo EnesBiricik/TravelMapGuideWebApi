@@ -1,6 +1,6 @@
-﻿using TravelMapGuideWebApi.Server.Data.Entities;
+﻿using TravelMapGuide.Server.Data.Entities;
 
-namespace TravelMapGuideWebApi.Server.Data.Repositories.Abstract
+namespace TravelMapGuide.Server.Data.Repositories.Abstract
 {
     public interface ITravelRepository : IRepository<Travel>
     {

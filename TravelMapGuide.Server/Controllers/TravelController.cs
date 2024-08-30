@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using TravelMapGuideWebApi.Server.Helpers;
-using TravelMapGuideWebApi.Server.Models;
-using TravelMapGuideWebApi.Server.Services;
+using TravelMapGuide.Server.Utilities.Helpers;
+using TravelMapGuide.Server.Models;
+using TravelMapGuide.Server.Services;
 
-namespace TravelMapGuideWebApi.Server.Controllers
+namespace TravelMapGuide.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

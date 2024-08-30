@@ -1,4 +1,4 @@
-﻿namespace TravelMapGuideWebApi.Server.Constants
+﻿namespace TravelMapGuide.Server.Utilities.Constants
 {
     public static class CollectionNames
     {

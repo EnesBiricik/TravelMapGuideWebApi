@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using TravelMapGuideWebApi.Server.Mappings.AutoMapper;
+using TravelMapGuide.Server.Mappings.AutoMapper;
 
-namespace Portfolio.Business.Business.Helpers
+namespace TravelMapGuide.Server.Utilities.Helpers
 {
     public static class ProfileHelper
     {

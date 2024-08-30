@@ -1,4 +1,4 @@
-﻿namespace TravelMapGuideWebApi.Server.Models.Jwt
+﻿namespace TravelMapGuide.Server.Models.Jwt
 {
     public class ClaimTokenResponseModel
     {

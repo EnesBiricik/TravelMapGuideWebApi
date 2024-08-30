@@ -2,7 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using TravelMapGuideWebApi.Server.Configuration;
+using TravelMapGuide.Server.Configuration;
 
 public class JwtTokenGenerator
 {

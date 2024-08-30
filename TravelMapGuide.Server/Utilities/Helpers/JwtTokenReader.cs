@@ -1,8 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using TravelMapGuideWebApi.Server.Models.Jwt;
+using TravelMapGuide.Server.Models.Jwt;
 
-namespace TravelMapGuideWebApi.Server.Helpers
+namespace TravelMapGuide.Server.Utilities.Helpers
 {
     public static class JwtTokenReader
     {

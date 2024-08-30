@@ -2,7 +2,7 @@
 using NLog;
 using static NLog.LogLevel;
 
-namespace TravelMapGuideWebApi.Server.Extensions
+namespace TravelMapGuide.Server.Utilities.Extensions
 {
     public static class CustomExceptionMiddleware
     {

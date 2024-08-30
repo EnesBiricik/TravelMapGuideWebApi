@@ -1,9 +1,9 @@
 ﻿using MongoDB.Driver;
-using TravelMapGuideWebApi.Server.Data.Context;
-using TravelMapGuideWebApi.Server.Data.Entities;
-using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
+using TravelMapGuide.Server.Data.Context;
+using TravelMapGuide.Server.Data.Entities;
+using TravelMapGuide.Server.Data.Repositories.Abstract;
 
-namespace TravelMapGuideWebApi.Server.Data.Repositories.Concrete
+namespace TravelMapGuide.Server.Data.Repositories.Concrete
 {
     public class Repository<T, TCollectionName> : IRepository<T> where T : BaseEntity
     {

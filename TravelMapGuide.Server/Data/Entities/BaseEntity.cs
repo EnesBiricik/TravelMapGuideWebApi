@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace TravelMapGuideWebApi.Server.Data.Entities
+namespace TravelMapGuide.Server.Data.Entities
 {
     public class BaseEntity
     {

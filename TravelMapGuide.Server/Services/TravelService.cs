@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using System.Text.RegularExpressions;
-using TravelMapGuideWebApi.Server.Data.Entities;
-using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
-using TravelMapGuideWebApi.Server.Helpers;
-using TravelMapGuideWebApi.Server.Models;
+using TravelMapGuide.Server.Data.Entities;
+using TravelMapGuide.Server.Data.Repositories.Abstract;
+using TravelMapGuide.Server.Utilities.Helpers;
+using TravelMapGuide.Server.Models;
 
-namespace TravelMapGuideWebApi.Server.Services
+namespace TravelMapGuide.Server.Services
 {
     public class TravelService : ITravelService
     {

@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using TravelMapGuideWebApi.Server.Models;
-using TravelMapGuideWebApi.Server.Services;
+using TravelMapGuide.Server.Models;
+using TravelMapGuide.Server.Services;
 
-namespace TravelMapGuideWebApi.Server.Controllers
+namespace TravelMapGuide.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -79,8 +79,24 @@ namespace TravelMapGuideWebApi.Server.Controllers
             {
                 return Ok(new
                 {
-                    User = result.Data,
-                    NewToken = result.NewToken
+                    User = result.Data.User,
+                    Token = result.Data.Token
+                });
+            }
+            return result.Data == null ? NotFound(result) : Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("[action]")]
+        public async Task<IActionResult> RoleUpdate([FromBody] RoleUpdateModel model)
+        {
+            var result = await _userService.UpdateUserRoleAsync(model);
+            if (result.IsSuccess)
+            {
+                return Ok(new
+                {
+                    User = result.Data.User,
+                    Token = result.Data.Token
                 });
             }
             return result.Data == null ? NotFound(result) : Ok(result);

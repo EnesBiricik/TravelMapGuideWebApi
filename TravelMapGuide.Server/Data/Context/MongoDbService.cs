@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using NLog;
-using TravelMapGuideWebApi.Server.Configuration;
-using TravelMapGuideWebApi.Server.Constants;
-using TravelMapGuideWebApi.Server.Data.Entities;
-using TravelMapGuideWebApi.Server.Enums;
-using TravelMapGuideWebApi.Server.Helpers;
+using TravelMapGuide.Server.Configuration;
+using TravelMapGuide.Server.Utilities.Constants;
+using TravelMapGuide.Server.Data.Entities;
+using TravelMapGuide.Server.Utilities.Enums;
+using TravelMapGuide.Server.Utilities.Helpers;
 
-namespace TravelMapGuideWebApi.Server.Data.Context
+namespace TravelMapGuide.Server.Data.Context
 {
     public class MongoDbService
     {

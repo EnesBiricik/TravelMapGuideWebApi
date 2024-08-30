@@ -1,5 +1,4 @@
-﻿
-namespace TravelMapGuideWebApi.Server.Data.Repositories.Abstract
+﻿namespace TravelMapGuide.Server.Data.Repositories.Abstract
 {
     public interface IRepository<T>
     {

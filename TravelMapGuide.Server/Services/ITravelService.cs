@@ -1,8 +1,8 @@
-﻿using TravelMapGuideWebApi.Server.Data.Entities;
-using TravelMapGuideWebApi.Server.Helpers;
-using TravelMapGuideWebApi.Server.Models;
+﻿using TravelMapGuide.Server.Data.Entities;
+using TravelMapGuide.Server.Utilities.Helpers;
+using TravelMapGuide.Server.Models;
 
-namespace TravelMapGuideWebApi.Server.Services
+namespace TravelMapGuide.Server.Services
 {
     public interface ITravelService
     {

@@ -1,9 +1,9 @@
 ﻿using MongoDB.Driver;
-using TravelMapGuideWebApi.Server.Constants;
-using TravelMapGuideWebApi.Server.Data.Context;
-using TravelMapGuideWebApi.Server.Data.Entities;
-using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
-using TravelMapGuideWebApi.Server.Data.Repositories.Concrete;
+using TravelMapGuide.Server.Utilities.Constants;
+using TravelMapGuide.Server.Data.Context;
+using TravelMapGuide.Server.Data.Entities;
+using TravelMapGuide.Server.Data.Repositories.Abstract;
+using TravelMapGuide.Server.Data.Repositories.Concrete;
 public class UserRepository : Repository<User, string>, IUserRepository
 {
     private readonly IMongoCollection<User> _users;

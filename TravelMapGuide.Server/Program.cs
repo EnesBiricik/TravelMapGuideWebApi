@@ -1,23 +1,15 @@
 using AutoMapper;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.IdentityModel.Tokens;
 using NLog;
 using NLog.Web;
-using Portfolio.Business.Business.Helpers;
-using System.Text;
 using TravelMapGuide.Server.Data.Repositories.Abstract;
 using TravelMapGuide.Server.Data.Repositories.Concrete;
 using TravelMapGuide.Server.Services;
-using TravelMapGuideWebApi.Server.Configuration;
-using TravelMapGuideWebApi.Server.Data.Context;
-using TravelMapGuideWebApi.Server.Data.Repositories.Abstract;
-using TravelMapGuideWebApi.Server.Data.Repositories.Concrete;
-using TravelMapGuideWebApi.Server.Extensions;
-using TravelMapGuideWebApi.Server.Helpers;
-using TravelMapGuideWebApi.Server.Services;
-using TravelMapGuideWebApi.Server.Validators;
+using TravelMapGuide.Server.Configuration;
+using TravelMapGuide.Server.Data.Context;
+using TravelMapGuide.Server.Utilities.Extensions;
+using TravelMapGuide.Server.Utilities.Helpers;
+using TravelMapGuide.Server.Services;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");

@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace TravelMapGuideWebApi.Server.Helpers
+namespace TravelMapGuide.Server.Utilities.Helpers
 {
     public static class PasswordHasher
     {

@@ -1,4 +1,4 @@
-﻿namespace TravelMapGuideWebApi.Server.Models
+﻿namespace TravelMapGuide.Server.Models
 {
     public class UserRegisterModel
     {

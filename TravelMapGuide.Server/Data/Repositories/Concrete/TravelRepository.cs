@@ -13,11 +13,5 @@ namespace TravelMapGuide.Server.Data.Repositories.Concrete
         {
 
         }
-
-        //misal girilen konuma göre seyahat getirme -- arama kutucuğu eklenir sorgu atılır zınk.
-        public async Task<IEnumerable<Travel>> GetTravelsByLocationAsync(string location)
-        {
-            return await _collection.Find(travel => travel.Location == location).ToListAsync();
-        }
     }
 }

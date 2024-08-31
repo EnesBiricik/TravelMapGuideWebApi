@@ -38,7 +38,7 @@ namespace TravelMapGuide.Server.Controllers
                 return Ok(result.Data);
             }
             return Unauthorized(result.Message);
-        }
+         }
 
         //token refresh araştırması
         [Authorize]
@@ -114,6 +114,7 @@ namespace TravelMapGuide.Server.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> Logout()
         {

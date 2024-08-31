@@ -11,6 +11,7 @@ import {
   OutlineLogoutIcon,
 } from '../icons'
 import { Avatar, Badge, Input, Dropdown, DropdownItem, WindmillContext } from '@windmill/react-ui'
+import LogoutButton from './LogoutButton'
 
 function Header() {
   const { mode, toggleMode } = useContext(WindmillContext)
@@ -130,7 +131,7 @@ function Header() {
               </DropdownItem>
               <DropdownItem onClick={() => alert('Log out!')}>
                 <OutlineLogoutIcon className="w-4 h-4 mr-3" aria-hidden="true" />
-                <span>Log out</span>
+                <LogoutButton />
               </DropdownItem>
             </Dropdown>
           </li>

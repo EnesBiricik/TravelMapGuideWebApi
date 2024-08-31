@@ -1,4 +1,5 @@
 import React, { lazy } from 'react'
+import CreateTravel from './pages/CreateTravel'
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
 import AccessibleNavigationAnnouncer from './components/AccessibleNavigationAnnouncer'
 
@@ -16,7 +17,7 @@ function App() {
           <Route path="/login" component={Login} />
           <Route path="/create-account" component={CreateAccount} />
           <Route path="/forgot-password" component={ForgotPassword} />
-
+          <Route path="/create-travel" component={CreateTravel} />
           {/* Place new routes over this */}
           <Route path="/app" component={Layout} />
           {/* If you have an index page, you can remothis Redirect */}

@@ -5,6 +5,8 @@ using System.Security.Claims;
 using TravelMapGuide.Server.Utilities.Helpers;
 using TravelMapGuide.Server.Models;
 using TravelMapGuide.Server.Services;
+using TravelMapGuide.Server.Data.Entities;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TravelMapGuide.Server.Controllers
 {
@@ -14,12 +16,15 @@ namespace TravelMapGuide.Server.Controllers
     {
         private readonly ITravelService _travelService;
         private readonly ILogger<TravelController> _logger; // If you want logging somethings..
+        private readonly IWebHostEnvironment _env;
 
 
-        public TravelController(ITravelService travelService, ILogger<TravelController> logger)
+
+        public TravelController(ITravelService travelService, ILogger<TravelController> logger, IWebHostEnvironment env)
         {
             _travelService = travelService;
             _logger = logger;
+            _env = env;
         }
 
         [HttpGet("[action]")]
@@ -44,10 +49,8 @@ namespace TravelMapGuide.Server.Controllers
 
         [Authorize]
         [HttpPost("[action]")]
-        public async Task<IActionResult> Post(CreateTravelModel model)
+        public async Task<IActionResult> Post([FromForm] CreateTravelModel model)
         {
-
-            //get userId with jwtreader
             var user = JwtTokenReader.ReadUser();
 
             if (user.UserId != null)
@@ -58,6 +61,23 @@ namespace TravelMapGuide.Server.Controllers
             {
                 return Unauthorized("Kullanıcı kimliği bulunamadı.");
             }
+
+            string imageUrl = null;
+            if (model.Image != null && model.Image.Length > 0)
+            {
+                var fileName = Guid.NewGuid() + Path.GetExtension(model.Image.FileName);
+                var imagePath = Path.Combine(_env.WebRootPath, "img", fileName); // wwwroot/img klasörüne yükleme
+
+                using (var stream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await model.Image.CopyToAsync(stream);
+                }
+
+                imageUrl = fileName; // URL'yi güncelle
+            }
+
+
+            model.ImageUrl = imageUrl;
 
             var data = await _travelService.CreateAsync(model);
             if (data.IsSuccess)

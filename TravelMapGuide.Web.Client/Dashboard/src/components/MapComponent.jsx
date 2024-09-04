@@ -15,7 +15,7 @@ const MapComponent = ({ onLocationSelect }) => {
   return (
     <LoadScript googleMapsApiKey="AIzaSyD6q26VxpqFEmDxqpPJBQljI84WDiYLt-k">
       <GoogleMap
-        mapContainerStyle={{ width: '100%', height: '400px' }}
+        mapContainerStyle={{ width: '100%', height: '300px' }}
         center={{ lat: -33.8567844, lng: 151.213108 }}
         zoom={10}
         onClick={handleMapClick}

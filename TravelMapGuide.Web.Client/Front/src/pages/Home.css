@@ -1,0 +1,27 @@
+.header {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.custom-search {
+    width: 150%; /* Arama inputunu 3 kat daha geniş yapar */
+    min-width: 600px; /* Minimum genişlik ayarı */
+    max-width: 900px; /* Maksimum genişlik ayarı (ekran genişliğine göre ayarlayın) */
+    border-radius: 8px !important;
+    border: 2px solid #FFC107 !important; /* Amber rengi */
+}
+
+.ant-input-search-button{
+    background-color: #FFC107 !important; /* Amber rengi (hex) */
+    border-color: #FFC107 !important;
+} 
+
+.custom-button {
+    background-color: #FFC107 !important; /* Amber rengi (hex) */
+    border-color: #FFC107 !important;
+}

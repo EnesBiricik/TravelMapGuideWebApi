@@ -10,6 +10,7 @@ using TravelMapGuide.Server.Data.Context;
 using TravelMapGuide.Server.Utilities.Extensions;
 using TravelMapGuide.Server.Utilities.Helpers;
 using TravelMapGuide.Server.Services;
+using Microsoft.Extensions.FileProviders;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
@@ -24,20 +25,12 @@ builder.Services.AddHttpContextAccessor();
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigins",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:3000")
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
-        });
-
-    options.AddPolicy("AllowAllOrigins",
+    options.AddPolicy("AllowAll",
         builder =>
         {
             builder.AllowAnyOrigin()
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
         });
 });
 
@@ -108,7 +101,11 @@ if (app.Environment.IsDevelopment())
 // Global Exception Handling Middleware -- extension middleware ile kullaným?
 app.UseGlobalExceptionHandling(logger);
 
-app.UseCors("AllowSpecificOrigins"); // veya "AllowAllOrigins"
+app.UseCors("AllowAll"); // veya "AllowAllOrigins"
+
+
+app.UseStaticFiles(); // Bu satýr statik dosyalarýn sunulmasýný saðlar
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

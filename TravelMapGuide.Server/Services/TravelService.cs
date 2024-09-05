@@ -13,14 +13,16 @@ namespace TravelMapGuide.Server.Services
         private readonly IValidator<CreateTravelModel> _createTravelValidator;
         private readonly IValidator<UpdateTravelModel> _updateTravelValidator;
         private readonly ITravelRepository _travelRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public TravelService(ITravelRepository travelRepository, IValidator<CreateTravelModel> createTravelValidator, IValidator<UpdateTravelModel> updateTravelValidator, IMapper mapper)
+        public TravelService(ITravelRepository travelRepository, IValidator<CreateTravelModel> createTravelValidator, IValidator<UpdateTravelModel> updateTravelValidator, IMapper mapper, IUserRepository userRepository)
         {
             _travelRepository = travelRepository;
             _createTravelValidator = createTravelValidator;
             _updateTravelValidator = updateTravelValidator;
             _mapper = mapper;
+            _userRepository = userRepository;
         }
 
         public async Task<Result> CreateAsync(CreateTravelModel model)
@@ -33,7 +35,10 @@ namespace TravelMapGuide.Server.Services
                 return Result.Failure("Validation error caught.", errorMessages);
             }
 
+
+
             var travel = _mapper.Map<Travel>(model);
+            travel.user = await _userRepository.GetByIdAsync(model.UserId);
 
             try
             {
@@ -110,6 +115,21 @@ namespace TravelMapGuide.Server.Services
                 return Result<Travel>.Failure("Travel is not found.");
             }
             return Result<Travel>.Success(data);
+        }
+        public async Task<Result<List<Travel>>> GetByUserIdAsync(string userId)
+        {
+            bool isValid = Regex.IsMatch(userId, @"^[a-fA-F0-9]{24}$");
+            if (!isValid)
+            {
+                return Result<List<Travel>>.Failure("User is not found. Id not matched.");
+            }
+
+            var data = await _travelRepository.GetByUserIdAsync(userId);
+            if (data == null)
+            {
+                return Result<List<Travel>>.Failure("Travel is not found.");
+            }
+            return Result<List<Travel>>.Success(data);
         }
     }
 }

@@ -7,5 +7,6 @@
         public string Email { get; set; }
         public Role Role { get; set; }
         public string RoleId { get; set; }
+        public string ImageUrl { get; set; }
     }
 }

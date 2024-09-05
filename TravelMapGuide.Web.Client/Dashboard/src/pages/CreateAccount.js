@@ -10,6 +10,7 @@ function Register() {
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [profilePhoto, setProfilePhoto] = useState(null) // Dosya için state
   const history = useHistory()
 
   const handleSubmit = async (e) => {
@@ -19,11 +20,16 @@ function Register() {
       Email: email,
       Username: username,
       Password: password,
+      Image: profilePhoto
     }
 
     try {
-      const response = await axios.post('https://localhost:7018/api/User/Register', userRegisterModel)
-      
+      const response = await axios.post('https://localhost:7018/api/User/Register', userRegisterModel, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
       if (response.status === 200) {
         alert('Registration successful')
         history.push('/login')
@@ -76,6 +82,14 @@ function Register() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                  />
+                </Label>
+                <Label className="mt-4">
+                  <span>Profile Photo</span>
+                  <Input
+                    className="mt-1"
+                    type="file" // Dosya yükleme için file input
+                    onChange={(e) => setProfilePhoto(e.target.files[0])} // Dosyayı set etme
                   />
                 </Label>
                 <Label className="mt-4">

@@ -1,4 +1,5 @@
-﻿using TravelMapGuide.Server.Models;
+﻿using TravelMapGuide.Server.Data.Entities;
+using TravelMapGuide.Server.Models;
 using TravelMapGuide.Server.Utilities.Helpers;
 
 namespace TravelMapGuide.Server.Services
@@ -11,5 +12,6 @@ namespace TravelMapGuide.Server.Services
         Task<Result<UpdateUserResponseModel>> UpdateUserRoleAsync(RoleUpdateModel model);
         Task<Result> DeleteAsync(string id);
         Task<bool> LogoutAsync(string token);
+        Task<Result<IEnumerable<User>>> GetAllAsync();
     }
 }

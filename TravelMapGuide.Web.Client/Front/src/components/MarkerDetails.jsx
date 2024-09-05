@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-const MarkerDetails = ({ markerData, onClose }) => {
+const MarkerDetails = ({ markerData }) => {
+    const [adres, setAdres] = useState('');
+
     if (!markerData) return null;
 
     const renderStars = () => {
         const stars = [];
         for (let i = 1; i <= 5; i++) {
             stars.push(
-                <span key={i} style={{ color: i <= markerData.starReview ? '#ffc107' : '#e4e5e9' }}>
+                <span key={i} style={{ color: i <= (markerData.starReview || 0) ? '#fff005' : '#e4e5e9' }}>
                     &#9733;
                 </span>
             );
@@ -15,70 +17,86 @@ const MarkerDetails = ({ markerData, onClose }) => {
         return stars;
     };
 
+    useEffect(() => {
+        if (!markerData.latitude || !markerData.longitude) return;
+
+        const apiKey = 'AIzaSyDGxRkAw4YWhwFQqfFVx8NGNu4I_pleegY'; // Buraya kendi API anahtarınızı ekleyin
+        const latitude = markerData.latitude;
+        const longitude = markerData.longitude;
+        const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
+
+        fetch(geocodeUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'OK') {
+                    const address = data.results[0].formatted_address;
+                    setAdres(address);
+                } else {
+                    console.error('Geocoding error:', data.status);
+                }
+            })
+            .catch(error => console.error('Fetch error:', error));
+    }, [markerData]);
+
     return (
-        <div style={styles.container}>
-            <button onClick={onClose} style={styles.closeButton}>X</button>
+        <>
             {markerData.imageUrl && (
                 <img
-                    src={`http://localhost:7018/img/${markerData.imageUrl}`} // URL'yi tamamlayın
-                    alt={markerData.name}
-                    style={{ width: '100%', height: 'auto' }} // Stil ayarları
+                    src={`https://localhost:7018/img/${markerData.imageUrl}`} // Resim URL'sini tamamlayın
+                    alt={markerData.name || 'Resim'}
+                    style={{ width: '100%', height: '300px', objectFit: 'cover' }} // Stil ayarları
                 />
             )}
-            <h1 style={styles.title}>{markerData.name}</h1>
-            <div style={styles.underline}></div>
-            <p><strong>Description:</strong> {markerData.description}</p>
-            <p><strong>Star Review:</strong> {renderStars()}</p>
-            <p><strong>Cost:</strong> ${markerData.cost}</p>
-            <p><strong>Latitude:</strong> {markerData.latitude}</p>
-            <p><strong>Longitude:</strong> {markerData.longitude}</p>
-        </div>
+            <div style={styles.padding}>
+                {console.log(markerData)}
+                <h1 style={styles.title}>{markerData.name || 'Bilgi Yok'}</h1>
+                <div style={styles.userInfoContainer}>
+                    <img
+                        src={markerData.user?.imageUrl ? `https://localhost:7018/img/${markerData.user.imageUrl}` : '/path/to/default-profile.jpg'} // Profil resmi URL'si
+                        alt={markerData.user?.username || 'Profil Resmi'}
+                        style={styles.profileImage}
+                    />
+                    <a href={`/userProfile?Id=${markerData.userId}`} style={styles.userNameLink}>
+                        {markerData.user?.username || 'Bilinmeyen Kullanıcı'}
+                    </a>
+                </div>
+                <p><strong>⭐ Star Review:</strong> {renderStars()}</p>
+                <p><strong>💲 Cost:</strong> ${markerData.cost || 'Bilinmiyor'}</p>
+                <p><strong>📍 Adres:</strong> {adres || 'Adres bulunamadı'}</p>
+                <p><strong>🗯️ Description:</strong> {markerData.description || 'Açıklama yok'}</p>
+            </div>
+        </>
     );
 };
 
 const styles = {
-    container: {
-        position: 'fixed',
-        top: 0,
-        right: 0,
-        width: '30%', // Daha geniş bir alan sağlanabilir
-        height: '100%',
-        backgroundColor: '#1a1a1a',
-        borderLeft: '1px solid #ffc107',
-        padding: '20px',
-        boxSizing: 'border-box',
-        zIndex: 1000,
-        overflowY: 'auto',
-        transition: 'transform 0.3s ease-in-out',
-        transform: 'translateX(0)',
-        borderRadius: '.2rem',
-        color: '#ffc107',
+    userInfoContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '10px',
     },
-    closeButton: {
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        background: 'none',
-        border: 'none',
-        fontSize: '16px',
-        cursor: 'pointer',
-        color: '#ffc107',
+    profileImage: {
+        width: '50px',
+        height: '50px',
+        borderRadius: '50%',
+        objectFit: 'cover',
+        marginRight: '10px',
     },
-    image: {
-        width: '100%',
-        height: 'auto',
-        borderRadius: '1rem',
-        marginBottom: '20px',
+    userNameLink: {
+        fontSize: '1.2rem',
+        fontWeight: 'bold',
+        color: '#ffc107',
+        textDecoration: 'none',
+    },
+    padding: {
+        padding: '1rem',
     },
     title: {
-        color: '#ffc107',
+        color: '#fff',
         fontFamily: "'Playfair Display', serif",
         fontSize: '2rem',
         marginBottom: '10px',
-    },
-    underline: {
-        borderBottom: '1px solid #ffc107',
-        marginBottom: '20px',
+        marginTop: '0px',
     },
 };
 

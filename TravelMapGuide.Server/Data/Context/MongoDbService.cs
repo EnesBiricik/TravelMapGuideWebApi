@@ -127,7 +127,8 @@ namespace TravelMapGuide.Server.Data.Context
                             Password = PasswordHasher.HashPassword("123"),
                             Email = "deneme@gmail.com",
                             RoleId = adminRole.Id,
-                            Role = adminRole
+                            Role = adminRole,
+                            ImageUrl = "DefaultUser.png"
                         };
 
                         _usersCollection.InsertOne(newUser);

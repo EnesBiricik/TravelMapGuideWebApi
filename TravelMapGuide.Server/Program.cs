@@ -87,7 +87,6 @@ var app = builder.Build();
 // JwtTokenReader initialize
 JwtTokenReader.Initialize(app.Services.GetRequiredService<IHttpContextAccessor>());
 
-app.UseDefaultFiles();
 app.UseStaticFiles();
 
 // Configure the HTTP request pipeline.

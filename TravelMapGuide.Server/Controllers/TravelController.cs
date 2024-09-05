@@ -128,5 +128,24 @@ namespace TravelMapGuide.Server.Controllers
             }
             return Unauthorized();
         }
+
+        [Authorize]
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetTravelByUserId()
+        {
+
+            var user = JwtTokenReader.ReadUser();
+
+            if (user.UserId == null)
+            {return Unauthorized("Kullanıcı kimliği bulunamadı.");}
+
+            var result = await _travelService.GetByUserIdAsync(user.UserId);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Message);
+            }
+
+            return Ok(result.Data);
+        }
     }
 }

@@ -12,15 +12,34 @@ namespace TravelMapGuide.Server.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IWebHostEnvironment _env;
 
-        public UserController(IUserService userService)
+
+        public UserController(IUserService userService, IWebHostEnvironment env)
         {
             _userService = userService;
+            _env = env;
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> Register([FromBody] UserRegisterModel model)
+        public async Task<IActionResult> Register([FromForm] UserRegisterModel model)
         {
+            string imageUrl = null;
+            if (model.Image != null && model.Image.Length > 0)
+            {
+                var fileName = Guid.NewGuid() + Path.GetExtension(model.Image.FileName);
+                var imagePath = Path.Combine(_env.WebRootPath, "img", fileName); // wwwroot/img klasörüne yükleme
+
+                using (var stream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await model.Image.CopyToAsync(stream);
+                }
+
+                imageUrl = fileName; // URL'yi güncelle
+            }
+
+            model.ImageUrl = imageUrl;
+
             var user = await _userService.RegisterUserAsync(model);
             if (user.IsSuccess)
             {
@@ -125,6 +144,18 @@ namespace TravelMapGuide.Server.Controllers
                 return Ok("Çıkış yapıldı.");
             }
             return BadRequest("Çıkış yapılamadı.");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("[action]")]
+        public async Task<IActionResult> Get()
+        {
+            var result = await _userService.GetAllAsync();
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+            return result.Data == null ? NotFound(result) : Ok(result);
         }
     }
 }

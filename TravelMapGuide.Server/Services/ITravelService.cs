@@ -11,5 +11,6 @@ namespace TravelMapGuide.Server.Services
         Task<Result<Travel>> UpdateAsync(UpdateTravelModel travel);
         Task<Result<Travel>> GetByIdAsync(string id);
         Task<Result> DeleteAsync(string id);
+        Task<Result<List<Travel>>> GetByUserIdAsync(string id);
     }
 }

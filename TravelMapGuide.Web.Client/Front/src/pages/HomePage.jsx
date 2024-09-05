@@ -6,16 +6,24 @@ import {
     useMap,
     Pin
 } from '@vis.gl/react-google-maps';
-import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { Modal, Button, Input } from 'antd'; // Ant Design componentleri
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons';
 import './Home.css'; // Stil dosyası
 import MarkerDetails from '../components/MarkerDetails'; // MarkerDetails bileşeni
+import SidePanel from '../components/SidePanel';
 
 const HomePage = () => {
     const [selectedLocation, setSelectedLocation] = useState(null);
+    //setsidepanel => marker and user detail
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [locations, setLocations] = useState([]);
+
+    const token = localStorage.getItem('jwtToken');
+
+    // Token geçerli değilse, hata mesajını konsola yazdırır
+    if (!token || typeof token !== 'string') {
+        console.log('Invalid or missing JWT token.');
+    }
 
     const options = {
         disableDefaultUI: true, // Tüm varsayılan kontrolleri kapatır
@@ -40,9 +48,9 @@ const HomePage = () => {
                         .slice(0, 100)
                         .map(location => ({
                             key: location.id,
-                            location: { 
+                            location: {
                                 lat: parseFloat(location.latitude),
-                                lng: parseFloat(location.longitude)
+                                lng: parseFloat(location.longitude),
                             },
                             name: location.name,
                             description: location.description,
@@ -50,7 +58,12 @@ const HomePage = () => {
                             cost: location.cost,
                             latitude: location.latitude,
                             longitude: location.longitude,
-                            imageUrl: location.imageUrl
+                            imageUrl: location.imageUrl,
+                            user: {
+                                username: location.user.username,
+                                imageUrl: location.user.imageUrl,
+                                id: location.user.id,
+                            }
                         }));
                     setLocations(selectedLocations);
                 } else {
@@ -59,8 +72,8 @@ const HomePage = () => {
             })
             .catch(error => console.error('Error fetching locations:', error));
     }, []);
-    
-    
+
+
     const handleAddClick = () => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -86,7 +99,7 @@ const HomePage = () => {
     return (
         <Fragment>
             <APIProvider
-                apiKey={'AIzaSyD6q26VxpqFEmDxqpPJBQljI84WDiYLt-k'}
+                apiKey={''}
                 onLoad={() => console.log('Maps API has loaded.')}
             >
                 <div className="header">
@@ -103,19 +116,28 @@ const HomePage = () => {
                     >
                         Add
                     </Button>
+                    <Button
+                        icon={token ? <LogoutOutlined /> : <LoginOutlined />}
+                        type="primary"
+                        className="auth-button"
+                    >
+                        {token ? 'Logout' : 'Login'}
+                    </Button>
                 </div>
                 <div className="map-container">
                     <Map
-                        style={{ width: selectedLocation ? '75%' : '100%', height: '100vh' }}
-                        defaultZoom={7}
-                        defaultCenter={{ lat: 37.870737, lng: 32.504982}}
+                        style={{ width: selectedLocation ? '100%' : '100%', height: '100vh' }}
+                        defaultZoom={3}
+                        defaultCenter={{ lat: 37.870737, lng: 32.504982 }}
                         mapId='f35f13567816558a'
                         options={options}
                     >
                         <PoiMarkers pois={locations} onMarkerClick={handleMarkerClick} />
                     </Map>
                     {selectedLocation && (
-                        <MarkerDetails markerData={selectedLocation} onClose={handleDetailsClose} />
+                        <SidePanel onClose={handleDetailsClose} >
+                            <MarkerDetails markerData={selectedLocation} />
+                        </SidePanel>
                     )}
                 </div>
             </APIProvider>
@@ -138,19 +160,19 @@ const HomePage = () => {
 const PoiMarkers = (props) => {
     const map = useMap();
     const [markers, setMarkers] = useState({});
-    const clusterer = useRef(null);
+    // const clusterer = useRef(null);
 
-    useEffect(() => {
-        if (!map) return;
-        if (!clusterer.current) {
-            clusterer.current = new MarkerClusterer({ map });
-        }
-    }, [map]);
+    // useEffect(() => {
+    //     if (!map) return;
+    //     if (!clusterer.current) {
+    //         clusterer.current = new MarkerClusterer({ map });
+    //     }
+    // }, [map]);
 
-    useEffect(() => {
-        clusterer.current?.clearMarkers();
-        clusterer.current?.addMarkers(Object.values(markers));
-    }, [markers]);
+    // useEffect(() => {
+    //     clusterer.current?.clearMarkers();
+    //     clusterer.current?.addMarkers(Object.values(markers));
+    // }, [markers]);
 
     const setMarkerRef = (marker, key) => {
         if (marker && markers[key]) return;
@@ -185,7 +207,20 @@ const PoiMarkers = (props) => {
                     clickable={true}
                     onClick={(ev) => handleClick(ev, poi)}
                 >
-                    <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
+                    <div style={{
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '50%',
+                        overflow: 'hidden',
+                        border: '2px solid #000',
+                        background: '#fff'
+                    }}>
+                        <img
+                            src={`https://localhost:7018/img/${poi.imageUrl}`}
+                            alt={poi.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                    </div>
                 </AdvancedMarker>
             ))}
         </>

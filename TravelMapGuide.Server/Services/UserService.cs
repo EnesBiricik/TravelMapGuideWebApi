@@ -5,6 +5,7 @@ using TravelMapGuide.Server.Data.Entities;
 using TravelMapGuide.Server.Data.Repositories.Abstract;
 using TravelMapGuide.Server.Utilities.Enums;
 using TravelMapGuide.Server.Utilities.Helpers;
+using TravelMapGuide.Server.Data.Repositories.Concrete;
 
 namespace TravelMapGuide.Server.Services
 {
@@ -81,7 +82,8 @@ namespace TravelMapGuide.Server.Services
                 Password = passwordHash,
                 Email = model.Email,
                 RoleId = userRole.Id,
-                Role = userRole
+                Role = userRole,
+                ImageUrl = model.ImageUrl
             };
 
             var result = await _userRepository.CreateAsync(user);
@@ -95,7 +97,7 @@ namespace TravelMapGuide.Server.Services
         public async Task<Result<UpdateUserResponseModel>> UpdateUserAsync(UpdateUserModel model, string oldToken)
         {
             var validateResult = _updateUserValidator.Validate(model);
-            if (!validateResult.IsValid) 
+            if (!validateResult.IsValid)
             {
                 var errors = string.Join("; ", validateResult.Errors.Select(e => e.ErrorMessage));
                 return Result<UpdateUserResponseModel>.Failure("Validate Errors: ", errors);
@@ -107,7 +109,7 @@ namespace TravelMapGuide.Server.Services
                 return Result<UpdateUserResponseModel>.Failure("User not found");
             }
 
-            if (model.NewPassword.Length > 0) 
+            if (model.NewPassword.Length > 0)
             {
                 if (!VerifyPassword(model.OldPassword, user.Password))
                 {
@@ -143,7 +145,7 @@ namespace TravelMapGuide.Server.Services
                 await _blacklistService.BlacklistTokenAsync(oldToken);
                 var newToken = _tokenGenerator.GenerateToken(updateResult.Username, updateResult.Role.Name, user.Id.ToString());
 
-                return Result<UpdateUserResponseModel>.Success(new UpdateUserResponseModel { User = updateResult, Token = newToken}, "Güncelleme işlemi başarılı.");
+                return Result<UpdateUserResponseModel>.Success(new UpdateUserResponseModel { User = updateResult, Token = newToken }, "Güncelleme işlemi başarılı.");
             }
 
             return Result<UpdateUserResponseModel>.Failure("Failed to update user");
@@ -200,6 +202,20 @@ namespace TravelMapGuide.Server.Services
         {
             await _blacklistService.BlacklistTokenAsync(token);
             return await _blacklistService.IsTokenBlacklistedAsync(token);
+        }
+
+        public async Task<Result<IEnumerable<User>>> GetAllAsync()
+        {
+            try
+            {
+                var data = await _userRepository.GetAllAsync();
+
+                return Result<IEnumerable<User>>.Success(data);
+            }
+            catch (Exception ex)
+            {
+                return Result<IEnumerable<User>>.Failure("An error occurred while getting travels.", ex.Message);
+            }
         }
     }
 }

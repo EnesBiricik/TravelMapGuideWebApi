@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const MarkerDetails = ({ markerData }) => {
+const MarkerDetails = ({ markerData, onUsernameClick }) => {
     const [adres, setAdres] = useState('');
 
     if (!markerData) return null;
@@ -20,7 +20,7 @@ const MarkerDetails = ({ markerData }) => {
     useEffect(() => {
         if (!markerData.latitude || !markerData.longitude) return;
 
-        const apiKey = 'AIzaSyDGxRkAw4YWhwFQqfFVx8NGNu4I_pleegY'; // Buraya kendi API anahtarınızı ekleyin
+        const apiKey = 'AIzaSyCffPbPK4Jn3FYEP5L9gclCMWtJ221Vx2Q'; // Buraya kendi API anahtarınızı ekleyin
         const latitude = markerData.latitude;
         const longitude = markerData.longitude;
         const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
@@ -48,7 +48,6 @@ const MarkerDetails = ({ markerData }) => {
                 />
             )}
             <div style={styles.padding}>
-                {console.log(markerData)}
                 <h1 style={styles.title}>{markerData.name || 'Bilgi Yok'}</h1>
                 <div style={styles.userInfoContainer}>
                     <img
@@ -56,9 +55,19 @@ const MarkerDetails = ({ markerData }) => {
                         alt={markerData.user?.username || 'Profil Resmi'}
                         style={styles.profileImage}
                     />
-                    <a href={`/userProfile?Id=${markerData.userId}`} style={styles.userNameLink}>
-                        {markerData.user?.username || 'Bilinmeyen Kullanıcı'}
+                    <a
+                        style={styles.userNameLink}
+                        onClick={() => {
+                            if (markerData.user && markerData.user.id) {
+                                onUsernameClick(markerData.user); // Only trigger if user and user.id exist
+                            } else {
+                                console.error('User ID is missing or undefined.');
+                            }
+                        }}
+                    >
+                        {markerData.user?.username || 'Bilinmeyen User'}
                     </a>
+
                 </div>
                 <p><strong>⭐ Star Review:</strong> {renderStars()}</p>
                 <p><strong>💲 Cost:</strong> ${markerData.cost || 'Bilinmiyor'}</p>

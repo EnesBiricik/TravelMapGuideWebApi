@@ -11,12 +11,15 @@ import { PlusOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons';
 import './Home.css'; // Stil dosyası
 import MarkerDetails from '../components/MarkerDetails'; // MarkerDetails bileşeni
 import SidePanel from '../components/SidePanel';
+import UserDetails from '../components/UserDetails';
 
 const HomePage = () => {
     const [selectedLocation, setSelectedLocation] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null); // State to track the selected user
     //setsidepanel => marker and user detail
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [locations, setLocations] = useState([]);
+    const [userTravels, setUserTravels] = useState([]);
 
     const token = localStorage.getItem('jwtToken');
 
@@ -31,7 +34,7 @@ const HomePage = () => {
         fullscreenControl: false, // Tam ekran kontrolünü kapatır
         streetViewControl: false, // Pegman kontrolünü kapatır
     };
-    console.log("tryOut")
+
     useEffect(() => {
         fetch('https://localhost:7018/api/Travel/Get')
             .then(response => {
@@ -41,7 +44,6 @@ const HomePage = () => {
                 return response.json();
             })
             .then(data => {
-                console.log("Data:", data);
                 if (data.isSuccess) {
                     const selectedLocations = data.data
                         .sort(() => 0.5 - Math.random())
@@ -63,6 +65,7 @@ const HomePage = () => {
                                 username: location.user.username,
                                 imageUrl: location.user.imageUrl,
                                 id: location.user.id,
+
                             }
                         }));
                     setLocations(selectedLocations);
@@ -72,6 +75,108 @@ const HomePage = () => {
             })
             .catch(error => console.error('Error fetching locations:', error));
     }, []);
+
+    useEffect(() => {
+        if (selectedUser) {
+            fetch(`https://localhost:7018/api/Travel/GetTravelByUserId?userId=${selectedUser.id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        const filteredLocations = data.map(travel => ({
+                            key: travel.id,
+                            location: {
+                                lat: parseFloat(travel.latitude),
+                                lng: parseFloat(travel.longitude),
+                            },
+                            name: travel.name,
+                            description: travel.description,
+                            starReview: travel.starReview,
+                            cost: travel.cost,
+                            latitude: travel.latitude,
+                            longitude: travel.longitude,
+                            imageUrl: travel.imageUrl,
+                            user: selectedUser
+                        }));
+                        setLocations(filteredLocations);
+                    } else {
+                        console.error('No travels found for this user.');
+                        setLocations([]); // Temizle veya varsayılan bir durum ayarla
+                    }
+                })
+                .catch(error => console.error('Error fetching user travels:', error));
+        } else {
+            // Kullanıcı seçilmemişse, varsayılan olarak tüm locationsları tekrar ayarla
+            fetch('https://localhost:7018/api/Travel/Get')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.isSuccess) {
+                        const selectedLocations = data.data
+                            .sort(() => 0.5 - Math.random())
+                            .slice(0, 100)
+                            .map(location => ({
+                                key: location.id,
+                                location: {
+                                    lat: parseFloat(location.latitude),
+                                    lng: parseFloat(location.longitude),
+                                },
+                                name: location.name,
+                                description: location.description,
+                                starReview: location.starReview,
+                                cost: location.cost,
+                                latitude: location.latitude,
+                                longitude: location.longitude,
+                                imageUrl: location.imageUrl,
+                                user: {
+                                    username: location.user.username,
+                                    imageUrl: location.user.imageUrl,
+                                    id: location.user.id,
+                                }
+                            }));
+                        setLocations(selectedLocations);
+                    } else {
+                        console.error("Failed to fetch locations:", data.message);
+                    }
+                })
+                .catch(error => console.error('Error fetching locations:', error));
+        }
+    }, [selectedUser]);
+
+    const handleUsernameClick = (user) => {
+        console.log('User clicked:', user); // Debugging line to check user data
+
+        if (!user || !user.id) {
+            console.error('Invalid user data:', user);
+            return;
+        }
+
+        setSelectedUser(user);
+        setSelectedLocation(null); // Hide marker details when user details are displayed
+
+        fetch(`https://localhost:7018/api/Travel/GetTravelByUserId?userId=${user.id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Gelen veri doğrudan bir dizi olduğundan, data ile çalışıyoruz
+                console.log(data); // Gelen veriyi konsola logluyoruz
+
+                if (Array.isArray(data) && data.length > 0) {
+                    setUserTravels(data); // Veriyi state'e kaydediyoruz
+                    console.log('User travels fetched:', data); // Debugging line to check travels
+                } else {
+                    console.error('No travels found for this user.');
+                }
+            })
+            .catch(error => console.error('Error fetching user travels:', error));
+    };
 
 
     const handleAddClick = () => {
@@ -84,22 +189,24 @@ const HomePage = () => {
         }
     };
 
-    const handleMarkerClick = (location) => {
-        setSelectedLocation(location);
-    };
-
     const handleModalClose = () => {
         setIsModalVisible(false);
     };
 
+    const handleMarkerClick = (location) => {
+        setSelectedLocation(location);
+        setSelectedUser(null); // Hide user details when marker details are displayed
+    };
+
     const handleDetailsClose = () => {
         setSelectedLocation(null);
+        setSelectedUser(null); // Close both details when clicking outside
     };
 
     return (
         <Fragment>
             <APIProvider
-                apiKey={''}
+                apiKey={'AIzaSyCffPbPK4Jn3FYEP5L9gclCMWtJ221Vx2Q'}
                 onLoad={() => console.log('Maps API has loaded.')}
             >
                 <div className="header">
@@ -133,15 +240,20 @@ const HomePage = () => {
                         options={options}
                     >
                         <PoiMarkers pois={locations} onMarkerClick={handleMarkerClick} />
+                            
                     </Map>
                     {selectedLocation && (
-                        <SidePanel onClose={handleDetailsClose} >
-                            <MarkerDetails markerData={selectedLocation} />
+                        <SidePanel onClose={handleDetailsClose}>
+                            <MarkerDetails markerData={selectedLocation} onUsernameClick={handleUsernameClick} />
+                        </SidePanel>
+                    )}
+                    {selectedUser && (
+                        <SidePanel onClose={handleDetailsClose}>
+                            <UserDetails userData={selectedUser} userTravels={userTravels} />
                         </SidePanel>
                     )}
                 </div>
             </APIProvider>
-
             <Modal
                 title="Create Travel"
                 open={isModalVisible}
@@ -192,16 +304,15 @@ const PoiMarkers = (props) => {
     const handleClick = useCallback((ev, poi) => {
         if (!map) return;
         if (!ev.latLng) return;
-        console.log('marker clicked:', ev.latLng.toString());
         map.panTo(ev.latLng);
         props.onMarkerClick(poi); // Marker tıklandığında detayları göster
     }, [map, props]);
 
     return (
         <>
-            {props.pois.map((poi) => (
+            {props.pois.map((poi, index) => (
                 <AdvancedMarker
-                    key={poi.key}
+                    key={poi.key || poi.id || index}  // Benzersiz bir key kullan
                     position={poi.location}
                     ref={marker => setMarkerRef(marker, poi.key)}
                     clickable={true}
@@ -223,6 +334,7 @@ const PoiMarkers = (props) => {
                     </div>
                 </AdvancedMarker>
             ))}
+
         </>
     );
 };

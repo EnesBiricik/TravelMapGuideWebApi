@@ -129,17 +129,17 @@ namespace TravelMapGuide.Server.Controllers
             return Unauthorized();
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetTravelByUserId()
+        public async Task<IActionResult> GetTravelByUserId(string userId)
         {
 
-            var user = JwtTokenReader.ReadUser();
+            //var user = JwtTokenReader.ReadUser();
 
-            if (user.UserId == null)
-            {return Unauthorized("Kullanıcı kimliği bulunamadı.");}
+            //if (user.UserId == null)
+            //{return Unauthorized("Kullanıcı kimliği bulunamadı.");}
 
-            var result = await _travelService.GetByUserIdAsync(user.UserId);
+            var result = await _travelService.GetByUserIdAsync(userId);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Message);

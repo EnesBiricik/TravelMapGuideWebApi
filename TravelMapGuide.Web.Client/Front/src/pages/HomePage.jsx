@@ -3,27 +3,26 @@ import {
     APIProvider,
     Map,
     AdvancedMarker,
-    useMap,
-    Pin
+    useMap
 } from '@vis.gl/react-google-maps';
-import { Modal, Button, Input } from 'antd'; // Ant Design componentleri
+import { Modal, Button, Input } from 'antd';
 import { PlusOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons';
-import './Home.css'; // Stil dosyası
-import MarkerDetails from '../components/MarkerDetails'; // MarkerDetails bileşeni
+import './Home.css';
+import MarkerDetails from '../components/MarkerDetails';
 import SidePanel from '../components/SidePanel';
 import UserDetails from '../components/UserDetails';
+import { MarkerClusterer } from '@googlemaps/markerclusterer';
+
 
 const HomePage = () => {
     const [selectedLocation, setSelectedLocation] = useState(null);
-    const [selectedUser, setSelectedUser] = useState(null); // State to track the selected user
-    //setsidepanel => marker and user detail
+    const [selectedUser, setSelectedUser] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [locations, setLocations] = useState([]);
     const [userTravels, setUserTravels] = useState([]);
 
     const token = localStorage.getItem('jwtToken');
 
-    // Token geçerli değilse, hata mesajını konsola yazdırır
     if (!token || typeof token !== 'string') {
         console.log('Invalid or missing JWT token.');
     }
@@ -34,47 +33,6 @@ const HomePage = () => {
         fullscreenControl: false, // Tam ekran kontrolünü kapatır
         streetViewControl: false, // Pegman kontrolünü kapatır
     };
-
-    useEffect(() => {
-        fetch('https://localhost:7018/api/Travel/Get')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.isSuccess) {
-                    const selectedLocations = data.data
-                        .sort(() => 0.5 - Math.random())
-                        .slice(0, 100)
-                        .map(location => ({
-                            key: location.id,
-                            location: {
-                                lat: parseFloat(location.latitude),
-                                lng: parseFloat(location.longitude),
-                            },
-                            name: location.name,
-                            description: location.description,
-                            starReview: location.starReview,
-                            cost: location.cost,
-                            latitude: location.latitude,
-                            longitude: location.longitude,
-                            imageUrl: location.imageUrl,
-                            user: {
-                                username: location.user.username,
-                                imageUrl: location.user.imageUrl,
-                                id: location.user.id,
-
-                            }
-                        }));
-                    setLocations(selectedLocations);
-                } else {
-                    console.error("Failed to fetch locations:", data.message);
-                }
-            })
-            .catch(error => console.error('Error fetching locations:', error));
-    }, []);
 
     useEffect(() => {
         if (selectedUser) {
@@ -105,15 +63,15 @@ const HomePage = () => {
                         setLocations(filteredLocations);
                     } else {
                         console.error('No travels found for this user.');
-                        setLocations([]); // Temizle veya varsayılan bir durum ayarla
+                        setLocations([]);
                     }
                 })
                 .catch(error => console.error('Error fetching user travels:', error));
         } else {
-            // Kullanıcı seçilmemişse, varsayılan olarak tüm locationsları tekrar ayarla
             fetch('https://localhost:7018/api/Travel/Get')
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data)
                     if (data.isSuccess) {
                         const selectedLocations = data.data
                             .sort(() => 0.5 - Math.random())
@@ -147,7 +105,7 @@ const HomePage = () => {
     }, [selectedUser]);
 
     const handleUsernameClick = (user) => {
-        console.log('User clicked:', user); // Debugging line to check user data
+        console.log('User clicked:', user);
 
         if (!user || !user.id) {
             console.error('Invalid user data:', user);
@@ -155,7 +113,7 @@ const HomePage = () => {
         }
 
         setSelectedUser(user);
-        setSelectedLocation(null); // Hide marker details when user details are displayed
+        setSelectedLocation(null);
 
         fetch(`https://localhost:7018/api/Travel/GetTravelByUserId?userId=${user.id}`)
             .then(response => {
@@ -165,12 +123,12 @@ const HomePage = () => {
                 return response.json();
             })
             .then(data => {
-                // Gelen veri doğrudan bir dizi olduğundan, data ile çalışıyoruz
-                console.log(data); // Gelen veriyi konsola logluyoruz
+                
+                console.log(data);
 
                 if (Array.isArray(data) && data.length > 0) {
-                    setUserTravels(data); // Veriyi state'e kaydediyoruz
-                    console.log('User travels fetched:', data); // Debugging line to check travels
+                    setUserTravels(data);
+                    console.log('User travels fetched:', data);
                 } else {
                     console.error('No travels found for this user.');
                 }
@@ -178,13 +136,12 @@ const HomePage = () => {
             .catch(error => console.error('Error fetching user travels:', error));
     };
 
-
     const handleAddClick = () => {
         const token = localStorage.getItem('token');
         if (token) {
             setIsModalVisible(true);
         } else {
-            // Token yoksa login sayfasına yönlendir
+            
             window.location.href = '/login';
         }
     };
@@ -194,25 +151,25 @@ const HomePage = () => {
     };
 
     const handleMarkerClick = (location) => {
+        setSelectedUser(null);
         setSelectedLocation(location);
-        setSelectedUser(null); // Hide user details when marker details are displayed
     };
 
     const handleDetailsClose = () => {
         setSelectedLocation(null);
-        setSelectedUser(null); // Close both details when clicking outside
+        setSelectedUser(null);
     };
 
     return (
         <Fragment>
             <APIProvider
-                apiKey={'AIzaSyCffPbPK4Jn3FYEP5L9gclCMWtJ221Vx2Q'}
+                apiKey={'AIzaSyCgJpq5GyTKq7sUtvlIzbFGNYhKDPFXF-0'}
                 onLoad={() => console.log('Maps API has loaded.')}
             >
                 <div className="header">
                     <Input.Search
                         placeholder="Search locations..."
-                        onSearch={value => console.log(value)}
+                        onSearch={""}
                         className="custom-search"
                     />
                     <Button
@@ -240,7 +197,7 @@ const HomePage = () => {
                         options={options}
                     >
                         <PoiMarkers pois={locations} onMarkerClick={handleMarkerClick} />
-                            
+
                     </Map>
                     {selectedLocation && (
                         <SidePanel onClose={handleDetailsClose}>
@@ -271,52 +228,48 @@ const HomePage = () => {
 
 const PoiMarkers = (props) => {
     const map = useMap();
-    const [markers, setMarkers] = useState({});
-    // const clusterer = useRef(null);
+    const [markers, setMarkers] = useState([]);
+    const clusterer = useRef(null);
 
-    // useEffect(() => {
-    //     if (!map) return;
-    //     if (!clusterer.current) {
-    //         clusterer.current = new MarkerClusterer({ map });
-    //     }
-    // }, [map]);
+    useEffect(() => {
+        if (!map || !props.pois.length) return;
 
-    // useEffect(() => {
-    //     clusterer.current?.clearMarkers();
-    //     clusterer.current?.addMarkers(Object.values(markers));
-    // }, [markers]);
+        if (!clusterer.current) {
+            clusterer.current = new MarkerClusterer({ map });
+        }
 
-    const setMarkerRef = (marker, key) => {
-        if (marker && markers[key]) return;
-        if (!marker && !markers[key]) return;
+        const newMarkers = props.pois.map((poi) => {
+            const marker = new google.maps.Marker({
+                position: poi.location,
+                map: map,
+                clickable: true
+            });
 
-        setMarkers(prev => {
-            if (marker) {
-                return { ...prev, [key]: marker };
-            } else {
-                const newMarkers = { ...prev };
-                delete newMarkers[key];
-                return newMarkers;
-            }
+            marker.addListener('click', (ev) => {
+                if (ev.latLng) {
+                    map.panTo(ev.latLng);
+                    props.onMarkerClick(poi);
+                }
+            });
+
+            return marker;
         });
-    };
 
-    const handleClick = useCallback((ev, poi) => {
-        if (!map) return;
-        if (!ev.latLng) return;
-        map.panTo(ev.latLng);
-        props.onMarkerClick(poi); // Marker tıklandığında detayları göster
-    }, [map, props]);
+        clusterer.current.clearMarkers();
+        clusterer.current.addMarkers(newMarkers);
+        setMarkers(newMarkers);
+
+        return () => {
+            newMarkers.forEach(marker => marker.setMap(null));
+        };
+    }, [map, props.pois]);
 
     return (
         <>
             {props.pois.map((poi, index) => (
                 <AdvancedMarker
-                    key={poi.key || poi.id || index}  // Benzersiz bir key kullan
+                    key={poi.id || poi.key || index}
                     position={poi.location}
-                    ref={marker => setMarkerRef(marker, poi.key)}
-                    clickable={true}
-                    onClick={(ev) => handleClick(ev, poi)}
                 >
                     <div style={{
                         width: '50px',
@@ -334,7 +287,6 @@ const PoiMarkers = (props) => {
                     </div>
                 </AdvancedMarker>
             ))}
-
         </>
     );
 };

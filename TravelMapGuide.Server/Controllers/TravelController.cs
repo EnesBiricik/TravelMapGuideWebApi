@@ -82,7 +82,7 @@ namespace TravelMapGuide.Server.Controllers
             var data = await _travelService.CreateAsync(model);
             if (data.IsSuccess)
             {
-                return Ok();
+                return Ok(data);
             }
 
             return BadRequest(data.Message);

@@ -12,16 +12,27 @@ import MarkerDetails from '../components/MarkerDetails';
 import SidePanel from '../components/SidePanel';
 import UserDetails from '../components/UserDetails';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
-
+import { useNavigate } from 'react-router-dom';
+import TextArea from 'antd/es/input/TextArea';
+import MapComp from '../components/MapComp';
+import { jwtDecode } from "jwt-decode"
 
 const HomePage = () => {
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [locations, setLocations] = useState([]);
+    const [location, setLocation] = useState({ lat: '', lng: '' });
+    const [rating, setRating] = useState(0);
+    const [cost, setCost] = useState(0);
+    const [name, setName] = useState('');
+    const [comment, setComment] = useState('');
+    const [image, setImage] = useState(null);
     const [userTravels, setUserTravels] = useState([]);
 
     const token = localStorage.getItem('jwtToken');
+    const navigate = useNavigate();
+
 
     if (!token || typeof token !== 'string') {
         console.log('Invalid or missing JWT token.');
@@ -123,7 +134,7 @@ const HomePage = () => {
                 return response.json();
             })
             .then(data => {
-                
+
                 console.log(data);
 
                 if (Array.isArray(data) && data.length > 0) {
@@ -137,17 +148,12 @@ const HomePage = () => {
     };
 
     const handleAddClick = () => {
-        const token = localStorage.getItem('token');
+        //console.error('token', token)
         if (token) {
             setIsModalVisible(true);
         } else {
-            
-            window.location.href = '/login';
+            navigate('/Login')
         }
-    };
-
-    const handleModalClose = () => {
-        setIsModalVisible(false);
     };
 
     const handleMarkerClick = (location) => {
@@ -160,10 +166,133 @@ const HomePage = () => {
         setSelectedUser(null);
     };
 
+    const handleLogout = async () => {
+        try {
+            await fetch('https://localhost:7018/api/User/Logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+            localStorage.removeItem('jwtToken');
+            navigate('/login'); // Yönlendirme işlemi
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
+    };
+
+    const handleClick = () => {
+        if (token) {
+            handleLogout();
+        } else {
+            navigate('/login'); // Token yoksa yönlendir
+        }
+    };
+
+    const handleLocationSelect = (location) => {
+        setLocation(location);
+    };
+
+    const handleImageChange = (e) => {
+        setImage(e.target.files[0]);
+    };
+
+    const handleModalClose = () => {
+        setIsModalVisible(false);
+        setLocation({ lat: '', lng: '' });
+        setRating(0);
+        setCost(0);
+        setName('');
+        setComment('');
+        setImage(null);
+    };
+
+    const handleSubmit = async () => {
+        const token = localStorage.getItem('jwtToken');
+        if (!token || typeof token !== 'string') {
+            console.error('Invalid or missing JWT token.');
+            return;
+        }
+
+        const decodedToken = jwtDecode(token);
+        const userId = decodedToken.userId;
+
+        const formData = new FormData();
+        formData.append('userId', userId);
+        formData.append('name', name);
+        formData.append('description', comment);
+        formData.append('latitude', location.lat.toString());
+        formData.append('longitude', location.lng.toString());
+        formData.append('date', new Date().toISOString());
+        formData.append('starReview', rating);
+        formData.append('cost', cost);
+        if (image) {
+            formData.append('image', image);
+        }
+
+        try {
+            console.log("Creating travel with location:", location.lat, location.lng);
+            const response = await fetch("https://localhost:7018/api/Travel/Post", {
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    // 'Content-Type': 'multipart/form-data',
+                },
+                body: formData
+            });
+
+            console.error("response", response)
+
+            if (response.ok) {
+                const responseData = await response.json();
+                console.error('responseData', responseData);
+
+                if (responseData.isSuccess) {
+                    console.log("Travel data successfully submitted");
+                    const newTravelData = {
+                        key: responseData.data.id,
+                        location: {
+                            lat: parseFloat(location.lat),
+                            lng: parseFloat(location.lng),
+                        },
+                        name: responseData.data.name,
+                        description: responseData.data.description,
+                        starReview: responseData.data.starReview,
+                        cost: responseData.data.cost,
+                        latitude: responseData.data.latitude,
+                        longitude: responseData.data.longitude,
+                        imageUrl:
+                            responseData.data.imageUrl instanceof Blob
+                                ? URL.createObjectURL(responseData.data.imageUrl)
+                                : responseData.data.imageUrl,
+                        user: responseData.data.user 
+                    };
+                    setLocations((prevLocations) => [...prevLocations, newTravelData]);
+                }
+                setIsModalVisible(false);
+            }
+            else {
+                const errorData = await response.json();
+                console.error("Failed to submit travel data:", errorData);
+            }
+        } catch (error) {
+            console.error("Error submitting travel data:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (locations.length > 0) {
+            // Burada bir bildirim veya başka bir efekt uygulayabilirsiniz
+            console.log("Yeni konum eklendi!", locations[locations.length - 1]);
+            // Örneğin, bir bildirim mesajı gösterebilirsiniz
+        }
+    }, [locations]);
+
     return (
         <Fragment>
             <APIProvider
-                apiKey={'AIzaSyCgJpq5GyTKq7sUtvlIzbFGNYhKDPFXF-0'}
+                apiKey={'AIzaSyCFYVfS6fzIAD6K1K2nQO0KsHaQmHQXPEI'}
                 onLoad={() => console.log('Maps API has loaded.')}
             >
                 <div className="header">
@@ -184,6 +313,7 @@ const HomePage = () => {
                         icon={token ? <LogoutOutlined /> : <LoginOutlined />}
                         type="primary"
                         className="auth-button"
+                        onClick={handleClick} // Tıklama olayını handleClick ile yönetiyoruz
                     >
                         {token ? 'Logout' : 'Login'}
                     </Button>
@@ -217,10 +347,98 @@ const HomePage = () => {
                 onCancel={handleModalClose}
                 footer={null}
             >
-                {/* Buraya createTravel componentini ekleyebilirsin */}
-                <Button type="primary" onClick={handleModalClose}>
-                    Save
-                </Button>
+                {/* Map Component */}
+                <div className="px-4 py-3 mb-8 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Location</span>
+                        <MapComp onLocationSelect={handleLocationSelect} />
+                        {location.lat && location.lng && (
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                Selected Location: {`Lat: ${location.lat}, Lng: ${location.lng}`}
+                            </p>
+                        )}
+                    </label>
+                </div>
+
+                {/* Name Input */}
+                <div className="px-4 py-3 mb-8 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Name</span>
+                        <Input
+                            className="mt-1"
+                            value={name}
+                            placeholder="Enter your travel name"
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                    </label>
+                </div>
+
+                {/* Rating Input */}
+                <div className="px-4 py-3 mb-8 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Rating (1-5)</span>
+                        <Input
+                            type="number"
+                            className="mt-1"
+                            value={rating}
+                            onChange={(e) => setRating(Number(e.target.value))}
+                            min="1"
+                            max="5"
+                            placeholder="Enter a rating between 1 and 5"
+                        />
+                    </label>
+                </div>
+
+                {/* Amount Input */}
+                <div className="px-4 py-3 mb-8 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Amount ($)</span>
+                        <Input
+                            type="number"
+                            className="mt-1"
+                            value={cost}
+                            onChange={(e) => setCost(Number(e.target.value))}
+                            min="1"
+                            placeholder="Enter an amount"
+                        />
+                    </label>
+                </div>
+
+                {/* Comment Input */}
+                <div className="px-4 py-3 mb-8 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Comment</span>
+                        <TextArea
+                            className="mt-1"
+                            rows="3"
+                            placeholder="Enter your comment"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                        />
+                    </label>
+                </div>
+
+                {/* Image Input */}
+                <div className="px-4 py-3 mb-8 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Image</span>
+                        <Input
+                            type="file"
+                            className="mt-1"
+                            onChange={handleImageChange}
+                        />
+                    </label>
+                </div>
+
+                {/* Submit Button */}
+                <div className="px-4 py-3 mb-8 bg-gray-100 rounded-lg flex justify-end">
+                    <Button type="primary" onClick={handleSubmit}>
+                        Submit
+                    </Button>
+                    <Button className="ml-4" onClick={handleModalClose}>
+                        Cancel
+                    </Button>
+                </div>
             </Modal>
         </Fragment>
     );

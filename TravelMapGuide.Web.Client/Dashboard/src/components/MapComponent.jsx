@@ -13,7 +13,7 @@ const MapComponent = ({ onLocationSelect }) => {
   };
 
   return (
-    <LoadScript googleMapsApiKey="AIzaSyCgJpq5GyTKq7sUtvlIzbFGNYhKDPFXF-0">
+    <LoadScript googleMapsApiKey="AIzaSyCFYVfS6fzIAD6K1K2nQO0KsHaQmHQXPEI">
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '300px' }}
         center={{ lat: -33.8567844, lng: 151.213108 }}

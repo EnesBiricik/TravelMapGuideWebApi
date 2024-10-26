@@ -27,7 +27,7 @@ function TravelList() {
         });
 
         const data = await response.json();
-        console.log(data)
+        console.error("data", data)
 
         if (response.ok && isMounted) {
           if (data != null) {
@@ -36,11 +36,11 @@ function TravelList() {
             setError(data.message || 'Veri alınırken hata oluştu.');
           }
         } else {
-          setError('API isteği sırasında hata oluştu.');
+          setError('API isteği sırasında hata oluştu. Response');
         }
       } catch (err) {
         if (isMounted) {
-          setError('API isteği sırasında hata oluştu.');
+          setError('API isteği sırasında hata oluştu. Catch', err);
         }
       } finally {
         if (isMounted) {
@@ -98,13 +98,16 @@ function TravelList() {
     },
     {
       name: 'Resim',
-      selector: row => <img 
-      src={`https://localhost:7018/img/${row.imageUrl}`} 
-      alt={row.name} 
-      className="h-16 w-16 object-cover" 
-      onError={(e) => { e.target.src = '/path/to/default-image.jpg'; }} 
-    />,
-    }
+      selector: row => <img
+        src={`https://localhost:7018/img/${row.imageUrl}`}
+        alt={row.name}
+        className="h-16 w-16 object-cover"
+        onError={(e) => { e.target.src = '/path/to/default-image.jpg'; }}
+      />,
+    },
+    {
+      name: 'İşlemler',
+    },
   ];
 
   return (

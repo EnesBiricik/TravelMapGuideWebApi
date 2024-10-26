@@ -42,18 +42,20 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<DatabaseConfiguration>(builder.Configuration.GetSection("ConnectionStrings"));
 
 builder.Services.AddSingleton<MongoDbService>();
+builder.Services.AddSingleton<IyzipayService>();
 
 // Repositories
 builder.Services.AddScoped<ITravelRepository, TravelRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IBlacklistRepository, BlacklistRepository>();
+//builder.Services.AddScoped<IBlacklistRepository, BlacklistRepository>();
 builder.Services.AddSingleton<IBlacklistRepository, BlacklistRepository>();
 
 // Services
 builder.Services.AddScoped<ITravelService, TravelService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBlacklistService, BlacklistService>();
+
 
 var profiles = ProfileHelper.GetProfiles();
 

@@ -48,7 +48,7 @@ const MarkerDetails = ({ markerData, onUsernameClick }) => {
                 />
             )}
             <div style={styles.padding}>
-                <h1 style={styles.title}>{markerData.name || 'Bilgi Yok'}</h1>
+                <h1 style={markerData.isFeatured == true ? styles.titleForFeatured : styles.title}>{markerData.name || 'Bilgi Yok'}</h1>
                 <div style={styles.userInfoContainer}>
                     <img
                         src={markerData.user?.imageUrl ? `https://localhost:7018/img/${markerData.user.imageUrl}` : '/path/to/default-profile.jpg'} // Profil resmi URL'si
@@ -107,6 +107,13 @@ const styles = {
         marginBottom: '10px',
         marginTop: '0px',
     },
+    titleForFeatured:{
+        color: '#ffc107',
+        fontFamily: "'Playfair Display', serif",
+        fontSize: '2rem',
+        marginBottom: '10px',
+        marginTop: '0px',
+    }
 };
 
 export default MarkerDetails;

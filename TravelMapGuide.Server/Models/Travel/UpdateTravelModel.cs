@@ -14,5 +14,6 @@
         public int StarReview { get; set; } = 0;
 
         public int Cost { get; set; }
+        public bool IsFeatured { get; set; }
     }
 }

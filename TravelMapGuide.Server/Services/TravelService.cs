@@ -34,12 +34,9 @@ namespace TravelMapGuide.Server.Services
                 var errorMessages = string.Join(", ", result.Errors.Select(e => e.ErrorMessage));
                 return Result.Failure("Validation error caught.", errorMessages);
             }
-
-
-
             var travel = _mapper.Map<Travel>(model);
             travel.user = await _userRepository.GetByIdAsync(model.UserId);
-
+            travel.IsFeatured = false;
             try
             {
                 var entity = await _travelRepository.CreateAsync(travel);
@@ -85,6 +82,28 @@ namespace TravelMapGuide.Server.Services
             }
 
             await _travelRepository.DeleteAsync(id);
+            return Result.Success();
+        }
+        public async Task<Result> UpdateFeatureStatus (string id)
+        {
+            bool isValid = Regex.IsMatch(id, @"^[a-fA-F0-9]{24}$");
+            if (string.IsNullOrEmpty(id) || !isValid)
+            {
+                return Result<Travel>.Failure("Travel is not found. Id not matched.");
+            }
+
+            var data = await _travelRepository.GetByIdAsync(id);
+            if (data == null)
+            {
+                return Result<Travel>.Failure("Travel is not found.");
+            }
+            
+            if (!data.IsFeatured)
+            {
+                data.IsFeatured = true;
+                await _travelRepository.UpdateAsync(data);
+            }
+
             return Result.Success();
         }
         public async Task<Result<IEnumerable<Travel>>> GetAllAsync()

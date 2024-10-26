@@ -131,15 +131,15 @@ namespace TravelMapGuide.Server.Controllers
 
         //[Authorize]
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetTravelByUserId(string userId)
+        public async Task<IActionResult> GetTravelByUserId()
         {
 
-            //var user = JwtTokenReader.ReadUser();
+            var user = JwtTokenReader.ReadUser();
 
-            //if (user.UserId == null)
-            //{return Unauthorized("Kullanıcı kimliği bulunamadı.");}
+            if (user.UserId == null)
+            { return Unauthorized("Kullanıcı kimliği bulunamadı."); }
 
-            var result = await _travelService.GetByUserIdAsync(userId);
+            var result = await _travelService.GetByUserIdAsync(user.UserId);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Message);
@@ -147,5 +147,7 @@ namespace TravelMapGuide.Server.Controllers
 
             return Ok(result.Data);
         }
+
+
     }
 }

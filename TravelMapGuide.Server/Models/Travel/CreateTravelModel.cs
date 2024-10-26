@@ -12,6 +12,7 @@
         public int Cost { get; set; }
         public IFormFile Image { get; set; }
         public string? ImageUrl { get; set; }
+        public bool IsFeatured { get; set; }
     }
 
 }

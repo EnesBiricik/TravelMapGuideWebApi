@@ -21,6 +21,7 @@ const HomePage = () => {
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isFeatureModalVisible, setFeatureModalVisible] = useState(false);
     const [locations, setLocations] = useState([]);
     const [location, setLocation] = useState({ lat: '', lng: '' });
     const [rating, setRating] = useState(0);
@@ -29,6 +30,12 @@ const HomePage = () => {
     const [comment, setComment] = useState('');
     const [image, setImage] = useState(null);
     const [userTravels, setUserTravels] = useState([]);
+    const [cardNumber, setCardNumber] = useState('');
+    const [cardHolderName, setCardHolderName] = useState('');
+    const [expireMonth, setExpireMonth] = useState('');
+    const [expireYear, setExpireYear] = useState('');
+    const [cvc, setCvc] = useState('');
+    const price = 10; // Sabit fiyat, readonly alan olarak gösterilecek
 
     const token = localStorage.getItem('jwtToken');
     const navigate = useNavigate();
@@ -69,7 +76,8 @@ const HomePage = () => {
                             latitude: travel.latitude,
                             longitude: travel.longitude,
                             imageUrl: travel.imageUrl,
-                            user: selectedUser
+                            user: selectedUser,
+                            isFeatured: travel.isFeatured
                         }));
                         setLocations(filteredLocations);
                     } else {
@@ -104,7 +112,8 @@ const HomePage = () => {
                                     username: location.user.username,
                                     imageUrl: location.user.imageUrl,
                                     id: location.user.id,
-                                }
+                                },
+                                isFeatured: location.isFeatured
                             }));
                         setLocations(selectedLocations);
                     } else {
@@ -166,6 +175,12 @@ const HomePage = () => {
         setSelectedUser(null);
     };
 
+    const openFeatureModalVisible = () => {
+        setFeatureModalVisible(true)
+        console.error("açıldı");
+
+    }
+
     const handleLogout = async () => {
         try {
             await fetch('https://localhost:7018/api/User/Logout', {
@@ -200,12 +215,18 @@ const HomePage = () => {
 
     const handleModalClose = () => {
         setIsModalVisible(false);
+        setFeatureModalVisible(false)
         setLocation({ lat: '', lng: '' });
         setRating(0);
         setCost(0);
         setName('');
         setComment('');
         setImage(null);
+        setCardHolderName('');
+        setCardNumber('');
+        setExpireMonth('');
+        setExpireYear('');
+        setCvc('');
     };
 
     const handleSubmit = async () => {
@@ -266,7 +287,8 @@ const HomePage = () => {
                             responseData.data.imageUrl instanceof Blob
                                 ? URL.createObjectURL(responseData.data.imageUrl)
                                 : responseData.data.imageUrl,
-                        user: responseData.data.user 
+                        user: responseData.data.user,
+                        isFeatured : response.data.isFeatured,
                     };
                     setLocations((prevLocations) => [...prevLocations, newTravelData]);
                 }
@@ -281,6 +303,42 @@ const HomePage = () => {
         }
     };
 
+    const handlePay = async () => {
+        const paymentData = {
+            cardNumber,
+            cardHolderName,
+            expireMonth,
+            expireYear,
+            cvc,
+            price,
+            travelId: selectedLocation.key,
+        };
+
+        console.error("Gönderilen Veri:", paymentData); 
+
+        try {
+            const response = await fetch('https://localhost:7018/api/Payments/MakePayment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(paymentData),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error(data.errormessage || 'Ödeme alınamadı');
+            }
+        } catch (error) {
+            console.error('Ödeme isteği başarısız:', error);
+            alert('Ödeme isteğinde bir hata oluştu.');
+        }
+
+        handleModalClose();
+    };
+
     useEffect(() => {
         if (locations.length > 0) {
             // Burada bir bildirim veya başka bir efekt uygulayabilirsiniz
@@ -292,7 +350,7 @@ const HomePage = () => {
     return (
         <Fragment>
             <APIProvider
-                apiKey={'AIzaSyCFYVfS6fzIAD6K1K2nQO0KsHaQmHQXPEI'}
+                apiKey={''}
                 onLoad={() => console.log('Maps API has loaded.')}
             >
                 <div className="header">
@@ -330,7 +388,7 @@ const HomePage = () => {
 
                     </Map>
                     {selectedLocation && (
-                        <SidePanel onClose={handleDetailsClose}>
+                        <SidePanel onClose={handleDetailsClose} openModal={openFeatureModalVisible}>
                             <MarkerDetails markerData={selectedLocation} onUsernameClick={handleUsernameClick} />
                         </SidePanel>
                     )}
@@ -440,6 +498,100 @@ const HomePage = () => {
                     </Button>
                 </div>
             </Modal>
+
+            <Modal
+                title="Make a Payment"
+                open={isFeatureModalVisible}
+                onCancel={handleModalClose}
+                footer={null}
+            >
+                {/* Card Number Input */}
+                <div className="px-4 py-3 mb-4 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Card Number</span>
+                        <Input
+                            className="mt-1"
+                            value={cardNumber}
+                            placeholder="Enter your card number"
+                            onChange={(e) => setCardNumber(e.target.value)}
+                        />
+                    </label>
+                </div>
+
+                {/* Card Holder Name Input */}
+                <div className="px-4 py-3 mb-4 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Card Holder Name</span>
+                        <Input
+                            className="mt-1"
+                            value={cardHolderName}
+                            placeholder="Enter the card holder's name"
+                            onChange={(e) => setCardHolderName(e.target.value)}
+                        />
+                    </label>
+                </div>
+
+                {/* Expiry Month Input */}
+                <div className="px-4 py-3 mb-4 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Expiry Month</span>
+                        <Input
+                            className="mt-1"
+                            value={expireMonth}
+                            placeholder="MM"
+                            onChange={(e) => setExpireMonth(e.target.value)}
+                        />
+                    </label>
+                </div>
+
+                {/* Expiry Year Input */}
+                <div className="px-4 py-3 mb-4 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Expiry Year</span>
+                        <Input
+                            className="mt-1"
+                            value={expireYear}
+                            placeholder="YYYY"
+                            onChange={(e) => setExpireYear(e.target.value)}
+                        />
+                    </label>
+                </div>
+
+                {/* CVC Input */}
+                <div className="px-4 py-3 mb-4 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>CVC</span>
+                        <Input
+                            className="mt-1"
+                            value={cvc}
+                            placeholder="CVC"
+                            onChange={(e) => setCvc(e.target.value)}
+                        />
+                    </label>
+                </div>
+
+                {/* Price (Readonly) */}
+                <div className="px-4 py-3 mb-4 bg-gray-100 rounded-lg">
+                    <label>
+                        <span>Price</span>
+                        <Input
+                            className="mt-1"
+                            value={10}
+                            readOnly
+                        />
+                    </label>
+                </div>
+
+                {/* Submit and Cancel Buttons */}
+                <div className="px-4 py-3 mb-8 bg-gray-100 rounded-lg flex justify-end">
+                    <Button type="primary" onClick={handlePay}>
+                        Submit
+                    </Button>
+                    <Button className="ml-4" onClick={handleModalClose}>
+                        Cancel
+                    </Button>
+                </div>
+            </Modal>
         </Fragment>
     );
 };
@@ -494,7 +646,7 @@ const PoiMarkers = (props) => {
                         height: '50px',
                         borderRadius: '50%',
                         overflow: 'hidden',
-                        border: '2px solid #000',
+                        border: poi.isFeatured == true ? '10px solid #fff' : '10px solid #000',
                         background: '#fff'
                     }}>
                         <img

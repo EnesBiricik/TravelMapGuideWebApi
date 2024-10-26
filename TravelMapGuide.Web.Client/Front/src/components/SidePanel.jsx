@@ -1,12 +1,16 @@
 import React from 'react'
 
-export const SidePanel = ({ children, onClose }) => {
+export const SidePanel = ({ children, onClose , openModal}) => {
     return (
         <div style={styles.mainContainer}>
             <button onClick={onClose} style={styles.closeButton}> ▶ </button>
             <div style={styles.container}>
                 {children}
+                <div>
+                    <button onClick={openModal}>Feature this Travel</button>
+                </div>
             </div>
+
         </div>
     )
 }

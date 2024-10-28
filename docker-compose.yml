@@ -1,0 +1,47 @@
+services:
+  api:
+    build:
+      context: ./TravelMapGuide.Server
+      dockerfile: Dockerfile
+    ports:
+      - "7018:80"
+    networks:
+      - app-network
+      
+  webclient:
+    build:
+      context: ./TravelMapGuide.Web.Client/Front
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - app-network
+
+  # dashboard:
+  #   build:
+  #     context: ./TravelMapGuide.Web.Client/Dashboard
+  #     dockerfile: Dockerfile
+  #   expose:
+  #     - "3001"
+  #   ports:
+  #     - "80:80"  # Dışarıdan erişim için port yönlendirmesi
+  #   networks:
+  #     - app-network
+  #   environment:
+  #     - NODE_OPTIONS=--openssl-legacy-provider
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.config:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - webclient
+      # - dashboard
+      - api
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge

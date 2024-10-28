@@ -1,0 +1,43 @@
+# .NET Projeleri İçin Gereksiz Dosyalar
+bin/
+obj/
+*.sln
+*.csproj.user
+*.dbmdl
+*.jfm
+*.log
+.vscode/
+.idea/
+.svn/
+.nuget/
+.rebuild/
+
+# Node ve React Projeleri İçin Gereksiz Dosyalar
+node_modules/
+dist/
+build/
+coverage/
+public/*.map
+src/assets/css/*.css.map
+
+# Ortam Dosyaları (React ve .NET)
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+.env.test
+
+# OS ve IDE ile İlgili Dosyalar
+.DS_Store
+Thumbs.db
+.git/
+.gitignore
+.dockerignore
+*.swp
+
+# Log ve Hata Dosyaları
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+*.log

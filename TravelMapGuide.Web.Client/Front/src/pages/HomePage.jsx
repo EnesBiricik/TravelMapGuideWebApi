@@ -54,7 +54,7 @@ const HomePage = () => {
 
     useEffect(() => {
         if (selectedUser) {
-            fetch(`https://localhost:7018/api/Travel/GetTravelByUserId?userId=${selectedUser.id}`)
+            fetch(`http://localhost:7018/api/Travel/GetTravelByUserId?userId=${selectedUser.id}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -87,7 +87,7 @@ const HomePage = () => {
                 })
                 .catch(error => console.error('Error fetching user travels:', error));
         } else {
-            fetch('https://localhost:7018/api/Travel/Get')
+            fetch('http://localhost:7018/api/Travel/Get')
                 .then(response => response.json())
                 .then(data => {
                     console.log(data)
@@ -135,7 +135,7 @@ const HomePage = () => {
         setSelectedUser(user);
         setSelectedLocation(null);
 
-        fetch(`https://localhost:7018/api/Travel/GetTravelByUserId?userId=${user.id}`)
+        fetch(`http://localhost:7018/api/Travel/GetTravelByUserId?userId=${user.id}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -183,7 +183,7 @@ const HomePage = () => {
 
     const handleLogout = async () => {
         try {
-            await fetch('https://localhost:7018/api/User/Logout', {
+            await fetch('http://localhost:7018/api/User/Logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ const HomePage = () => {
 
         try {
             console.log("Creating travel with location:", location.lat, location.lng);
-            const response = await fetch("https://localhost:7018/api/Travel/Post", {
+            const response = await fetch("http://localhost:7018/api/Travel/Post", {
                 method: "POST",
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -300,6 +300,7 @@ const HomePage = () => {
             }
         } catch (error) {
             console.error("Error submitting travel data:", error);
+            setIsModalVisible(false);
         }
     };
 
@@ -317,7 +318,7 @@ const HomePage = () => {
         console.error("Gönderilen Veri:", paymentData); 
 
         try {
-            const response = await fetch('https://localhost:7018/api/Payments/MakePayment', {
+            const response = await fetch('http://localhost:7018/api/Payments/MakePayment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -350,7 +351,7 @@ const HomePage = () => {
     return (
         <Fragment>
             <APIProvider
-                apiKey={''}
+                apiKey={'AIzaSyAuI3VwUmiLgh5wE4i6nGB7ocBnzaRnGsA'}
                 onLoad={() => console.log('Maps API has loaded.')}
             >
                 <div className="header">
@@ -410,11 +411,11 @@ const HomePage = () => {
                     <label>
                         <span>Location</span>
                         <MapComp onLocationSelect={handleLocationSelect} />
-                        {location.lat && location.lng && (
+                        {/* {location.lat && location.lng && (
                             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                                 Selected Location: {`Lat: ${location.lat}, Lng: ${location.lng}`}
                             </p>
-                        )}
+                        )} */}
                     </label>
                 </div>
 
@@ -498,7 +499,6 @@ const HomePage = () => {
                     </Button>
                 </div>
             </Modal>
-
             <Modal
                 title="Make a Payment"
                 open={isFeatureModalVisible}
@@ -650,7 +650,7 @@ const PoiMarkers = (props) => {
                         background: '#fff'
                     }}>
                         <img
-                            src={`https://localhost:7018/img/${poi.imageUrl}`}
+                            src={`http://localhost:7018/img/${poi.imageUrl}`}
                             alt={poi.name}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />

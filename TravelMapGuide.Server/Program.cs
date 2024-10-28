@@ -39,8 +39,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Add services to the container.
-builder.Services.Configure<DatabaseConfiguration>(builder.Configuration.GetSection("ConnectionStrings"));
-
+builder.Services.Configure<DatabaseConfiguration>(builder.Configuration.GetSection("DatabaseConfiguration"));
 builder.Services.AddSingleton<MongoDbService>();
 builder.Services.AddSingleton<IyzipayService>();
 
@@ -73,11 +72,11 @@ builder.Services.AddJwtConfiguration(builder.Configuration);
 builder.Services.AddAuthorization();
 
 // FluentValidation
-#pragma warning disable CS0618 // Tür veya üye artýk kullanýlmýyor
+#pragma warning disable CS0618 // Tï¿½r veya ï¿½ye artï¿½k kullanï¿½lmï¿½yor
 builder.Services.AddControllers()
     .AddFluentValidation(x =>
     { x.RegisterValidatorsFromAssemblies(ValidatorProfileHelper.GetValidatorAssemblies()); });
-#pragma warning restore CS0618 // Tür veya üye artýk kullanýlmýyor
+#pragma warning restore CS0618 // Tï¿½r veya ï¿½ye artï¿½k kullanï¿½lmï¿½yor
 
 // NLog: Setup NLog for Dependency injection
 builder.Logging.ClearProviders();
@@ -99,15 +98,15 @@ if (app.Environment.IsDevelopment())
 }
 
 
-// Global Exception Handling Middleware -- extension middleware ile kullaným?
+// Global Exception Handling Middleware -- extension middleware ile kullanï¿½m?
 app.UseGlobalExceptionHandling(logger);
 
 app.UseCors("AllowAll"); // veya "AllowAllOrigins"
 
 
-app.UseStaticFiles(); // Bu satýr statik dosyalarýn sunulmasýný saðlar
+app.UseStaticFiles(); // Bu satï¿½r statik dosyalarï¿½n sunulmasï¿½nï¿½ saï¿½lar
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

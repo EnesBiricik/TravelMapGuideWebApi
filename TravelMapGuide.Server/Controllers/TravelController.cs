@@ -28,6 +28,12 @@ namespace TravelMapGuide.Server.Controllers
         }
 
         [HttpGet("[action]")]
+        public async Task<IActionResult> TestForX()
+        {
+            return Ok(true);
+        }
+
+        [HttpGet("[action]")]
         public async Task<IActionResult> Get()
         {
             var data = await _travelService.GetAllAsync();
@@ -133,7 +139,6 @@ namespace TravelMapGuide.Server.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> GetTravelByUserId()
         {
-
             var user = JwtTokenReader.ReadUser();
 
             if (user.UserId == null)
@@ -147,7 +152,5 @@ namespace TravelMapGuide.Server.Controllers
 
             return Ok(result.Data);
         }
-
-
     }
 }

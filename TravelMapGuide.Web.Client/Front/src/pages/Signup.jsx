@@ -24,7 +24,7 @@ function Signup () {
         formData.append('Image', profilePhoto);
 
         try {
-            const response = await axios.post('https://localhost:7018/api/User/Register', formData, {
+            const response = await axios.post('http://localhost:7018/api/User/Register', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

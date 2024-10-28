@@ -7,7 +7,7 @@
     "tailwind:dev": "tailwindcss build src/assets/css/tailwind.css -o src/assets/css/tailwind.output.css",
     "tailwind:build": "cross-env NODE_ENV=production postcss src/assets/css/tailwind.css -o src/assets/css/tailwind.output.css",
     "prestart": "npm run tailwind:dev",
-    "start": "react-scripts --openssl-legacy-provider start",
+    "start": "react-scripts start",
     "prebuild": "npm run tailwind:build",
     "build": "react-scripts build",
     "cz": "git-cz",

@@ -5,7 +5,7 @@ const UserDetails = ({ userData, userTravels }) => {
     return (
         <div style={styles.padding}>
             <img
-                src={userData.imageUrl ? `https://localhost:7018/img/${userData.imageUrl}` : '/path/to/default-profile.jpg'}
+                src={userData.imageUrl ? `http://localhost:7018/img/${userData.imageUrl}` : '/path/to/default-profile.jpg'}
                 alt={userData.username || 'Profile'}
                 style={{ width: '100%', height: '300px', objectFit: 'cover' }}
             />

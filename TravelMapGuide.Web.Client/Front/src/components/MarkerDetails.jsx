@@ -42,7 +42,7 @@ const MarkerDetails = ({ markerData, onUsernameClick }) => {
         <>
             {markerData.imageUrl && (
                 <img
-                    src={`https://localhost:7018/img/${markerData.imageUrl}`} // Resim URL'sini tamamlayın
+                    src={`http://localhost:7018/img/${markerData.imageUrl}`} // Resim URL'sini tamamlayın
                     alt={markerData.name || 'Resim'}
                     style={{ width: '100%', height: '300px', objectFit: 'cover' }} // Stil ayarları
                 />
@@ -51,7 +51,7 @@ const MarkerDetails = ({ markerData, onUsernameClick }) => {
                 <h1 style={markerData.isFeatured == true ? styles.titleForFeatured : styles.title}>{markerData.name || 'Bilgi Yok'}</h1>
                 <div style={styles.userInfoContainer}>
                     <img
-                        src={markerData.user?.imageUrl ? `https://localhost:7018/img/${markerData.user.imageUrl}` : '/path/to/default-profile.jpg'} // Profil resmi URL'si
+                        src={markerData.user?.imageUrl ? `http://localhost:7018/img/${markerData.user.imageUrl}` : '/path/to/default-profile.jpg'} // Profil resmi URL'si
                         alt={markerData.user?.username || 'Profil Resmi'}
                         style={styles.profileImage}
                     />

@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import RootLayout from './components/layout/RootLayout';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import './assets/styles/App.css';
 
 const router = createBrowserRouter([
   {

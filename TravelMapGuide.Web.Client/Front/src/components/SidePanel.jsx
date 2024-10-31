@@ -1,14 +1,12 @@
 import React from 'react'
 
-export const SidePanel = ({ children, onClose , openModal}) => {
+export const SidePanel = ({ children, onClose}) => {
     return (
         <div style={styles.mainContainer}>
             <button onClick={onClose} style={styles.closeButton}> ▶ </button>
             <div style={styles.container}>
                 {children}
-                <div>
-                    <button onClick={openModal}>Feature this Travel</button>
-                </div>
+                
             </div>
 
         </div>
@@ -24,11 +22,12 @@ const styles = {
         top: 0,
         right: '1rem',
         position: 'fixed',
-        width: '20%',
+        width: '23%',
     },
     container: {
         width: '100%',
-        height: '90%',
+        marginTop:"40px",
+        height: '86%',
         backgroundColor: '#1a1a1a',
         boxShadow: 'rgba(0, 0, 0, 1) 0px 52px 152px',
         padding: '0px',
@@ -47,12 +46,12 @@ const styles = {
         fontSize: '20px',
         cursor: 'pointer',
         color: 'white',
-        backgroundColor: 'rgb(26, 26, 26)',
-        right: 'calc(20% + 1rem)',
+        backgroundColor: 'rgb(26, 26, 28)',
+        right: 'calc(23% + 1rem)',
         borderRadius: '1rem 0 0 1rem',
-        padding: '2rem 1rem',
+        padding: '1.5rem 0.7rem',
         zIndex: '10000',
-        borderRight: '1px solid white',
+        borderRight: '1px solid #efeeee29',
     },
     image: {
         width: '100%',

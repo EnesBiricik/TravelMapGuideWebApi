@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '../constants/Endpoints';
 
 const UserDetails = ({ userData, userTravels }) => {
     if (!userData) return null;
     return (
         <div style={styles.padding}>
             <img
-                src={userData.imageUrl ? `http://localhost:7018/img/${userData.imageUrl}` : '/path/to/default-profile.jpg'}
+                src={userData.imageUrl ? `${API_ENDPOINTS.DEFAULT_URL}img/${userData.imageUrl}` : '/path/to/default-profile.jpg'}
                 alt={userData.username || 'Profile'}
                 style={{ width: '100%', height: '300px', objectFit: 'cover' }}
             />

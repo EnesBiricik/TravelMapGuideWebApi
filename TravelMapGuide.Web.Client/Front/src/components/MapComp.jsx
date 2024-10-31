@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 
-const MapComp = ({ onLocationSelect }) => {
+const MapComp = ({ onLocationSelect,zoom=8}) => {
   const [markerPosition, setMarkerPosition] = useState(null);
 
   const handleMapClick = (event) => {
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
     setMarkerPosition({ lat, lng });
-    console.log(lat, lng);
     onLocationSelect({ lat, lng });
   };
 
   return (
     <GoogleMap
-      mapContainerStyle={{ width: '100%', height: '200px' }}
+      mapContainerStyle={{ width: '100%', height: '160px' }}
       center={{ lat: 37.874641, lng: 32.493156}}
-      zoom={8}
+      zoom={zoom}
       onClick={handleMapClick}
       options={{
         disableDefaultUI: true,

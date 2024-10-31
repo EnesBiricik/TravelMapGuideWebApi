@@ -1,0 +1,238 @@
+.header {
+    position: fixed;
+    top: 10px;
+    left: 0px;
+    transform: translateX(0%);
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 0 10px;
+    /* Butonları sağa yaslamak için padding ekleyin */
+    box-sizing: border-box;
+}
+
+.IPAZAH-content-container svg {
+    fill: lightgray;
+}
+
+.custom-search:focus {
+    border-style: none;
+}
+
+
+.auth-button {
+    margin-left: auto;
+    background-color: #1677ff !important;
+    border-color: #1677ff !important;
+}
+
+.ant-rate {
+    margin: .2rem auto !important;
+
+}
+
+.ant-modal-close {
+    color: #fff !important;
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: #151515 !important;
+}
+
+.TravelCreateModal>* {
+    color: white;
+}
+
+.ant-modal-title {
+    color: white !important;
+    background-color: #232322 !important;
+
+}
+
+.TravelCreateModal {
+    background-color: #232322 !important;
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-select-single {
+    width: 80px !important;
+}
+
+.ant-modal {
+    padding: 0px !important;
+    background-color: #232322 !important;
+    border-radius: 12px;
+}
+
+.ant-upload>* {
+    color: white !important;
+}
+
+.ant-select-arrow {
+    color: rgba(255, 255, 255, 0.705) !important;
+
+}
+
+.ant-modal .ant-modal-content {
+    background-color: #232322 !important;
+    border-radius: 12px;
+}
+
+.mapInputDiv div {
+    border-radius: 12px;
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-upload-wrapper.ant-upload-picture-card-wrapper .ant-upload.ant-upload-select,
+:where(.css-dev-only-do-not-override-apn68).ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload.ant-upload-select {
+    width: 99%;
+    height: 156px;
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-image .ant-image-img {
+    height: 160px;
+    object-fit: cover;
+}
+
+.ant-rate-star.ant-rate-star-zero>:where(.css-dev-only-do-not-override-apn68).ant-rate .ant-rate-star-first,
+:where(.css-dev-only-do-not-override-apn68).ant-rate .ant-rate-star-second {
+    color: rgba(164, 164, 164, 0.717);
+}
+
+.ant-image.css-dev-only-do-not-override-apn68 {
+    width: 100% !important;
+}
+
+.ant-upload-list.ant-upload-list-picture-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 160px !important;
+    width: 100% !important;
+}
+
+.ant-modal-content .ant-input {
+    color: whitesmoke;
+    background-color: #232322;
+    border: none;
+    border-bottom: 1px solid;
+    outline: none !important;
+    border-radius: 0px !important;
+    padding-left: 0;
+}
+
+.ant-select-selector {
+    color: whitesmoke !important;
+    background-color: #232322 !important;
+    /* border: none;
+    border-bottom: 1px solid;
+    outline: none !important;
+    border-radius: 0px !important;
+    padding-left: 0; */
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-select-dropdown {
+    color: whitesmoke !important;
+    background-color: #393939 !important;
+}
+
+.ant-select-item-option-content,
+.ant-select-selection-item {
+    color: whitesmoke !important;
+
+}
+
+.ant-modal-content .ant-input::placeholder {
+    color: rgba(219, 219, 219, 0.5);
+
+}
+
+.PaymentModal>* {
+    color: white;
+}
+
+.PaymentModal {
+    background-color: #232322 !important;
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-otp .ant-otp-input {
+    border: 1px solid !important;
+    border-radius: 5px !important;
+    padding-left: 2px !important;
+}
+
+.creditCart {
+    width: 100%;
+    height: 100%;
+    padding-right: 0px;
+    background-color: rgba(0, 0, 0, 0.918);
+    border-radius: 14px;
+    padding: 15px 10px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+
+}
+
+#creditCartParent {
+    padding: 1px 3px !important;
+}
+
+.creditHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+.creditTitleDiv h1 {
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0px;
+}
+
+.creditTitleDiv {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.creditBottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.creditBottom label {
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.creditBottom p {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+}
+
+.creditContent label {
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.creditContent p {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+}
+#cip {
+    transform: rotate(90deg);
+    border-radius: 5px;
+    width: 30px;
+    height: 20px;
+    margin-left: 12px;
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-input-group-wrapper{
+    width: 30%;
+}

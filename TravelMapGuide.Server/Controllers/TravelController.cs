@@ -7,6 +7,7 @@ using TravelMapGuide.Server.Models;
 using TravelMapGuide.Server.Services;
 using TravelMapGuide.Server.Data.Entities;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TravelMapGuide.Server.Controllers
 {
@@ -17,9 +18,6 @@ namespace TravelMapGuide.Server.Controllers
         private readonly ITravelService _travelService;
         private readonly ILogger<TravelController> _logger; // If you want logging somethings..
         private readonly IWebHostEnvironment _env;
-
-
-
         public TravelController(ITravelService travelService, ILogger<TravelController> logger, IWebHostEnvironment env)
         {
             _travelService = travelService;
@@ -28,18 +26,11 @@ namespace TravelMapGuide.Server.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> TestForX()
-        {
-            return Ok(true);
-        }
-
-        [HttpGet("[action]")]
         public async Task<IActionResult> Get()
         {
             var data = await _travelService.GetAllAsync();
             if (data.IsSuccess)
             {
-
                 return Ok(data);
             }
             return BadRequest(data);
@@ -65,25 +56,8 @@ namespace TravelMapGuide.Server.Controllers
             }
             else
             {
-                return Unauthorized("Kullanıcı kimliği bulunamadı.");
+                return Unauthorized("User ID not found.");
             }
-
-            string imageUrl = null;
-            if (model.Image != null && model.Image.Length > 0)
-            {
-                var fileName = Guid.NewGuid() + Path.GetExtension(model.Image.FileName);
-                var imagePath = Path.Combine(_env.WebRootPath, "img", fileName); // wwwroot/img klasörüne yükleme
-
-                using (var stream = new FileStream(imagePath, FileMode.Create))
-                {
-                    await model.Image.CopyToAsync(stream);
-                }
-
-                imageUrl = fileName; // URL'yi güncelle
-            }
-
-
-            model.ImageUrl = imageUrl;
 
             var data = await _travelService.CreateAsync(model);
             if (data.IsSuccess)
@@ -94,48 +68,37 @@ namespace TravelMapGuide.Server.Controllers
             return BadRequest(data.Message);
         }
 
+        [Authorize]
         [HttpPut("[action]")]
         public async Task<ActionResult> Update(UpdateTravelModel model)
         {
-            var data = await _travelService.UpdateAsync(model);
-            if (data.IsSuccess)
+            var user = JwtTokenReader.ReadUser();
+            if (string.IsNullOrEmpty(user.UserId))
             {
-                return Ok(data);
+                return Unauthorized("You do not have access permission.");
             }
-            return data.Data == null ? NotFound(data) : Ok(data);
+
+            var result = await _travelService.UpdateAsync(model);
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+            return result.Data == null ? NotFound(result) : Ok(result);
         }
 
+        [Authorize]
         [HttpDelete("[action]/{id}")]
         public async Task<ActionResult> Delete(string id)
         {
+            var user = JwtTokenReader.ReadUser();
+            if (string.IsNullOrEmpty(user.UserId) || (!string.IsNullOrEmpty(user.UserId) && user.UserId != id))
+            {
+                return Unauthorized("You do not have access permission.");
+            }
             await _travelService.DeleteAsync(id);
             return NoContent();
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpGet("[action]")]
-        public async Task<IActionResult> Test()
-        {
-            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-            if (authHeader != null && authHeader.StartsWith("Bearer "))
-            {
-                var token = authHeader.Substring("Bearer ".Length).Trim();
-
-                // Token içeriğini incelemek için
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-
-                // Örnek: kullanıcı adını almak
-                var username = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Name).Value;
-                var id = jwtToken.Claims.First(claim => claim.Type == "userId").Value;
-                var role = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Role).Value;
-
-                return Ok(new { Username = username });
-            }
-            return Unauthorized();
-        }
-
-        //[Authorize]
         [HttpGet("[action]")]
         public async Task<IActionResult> GetTravelByUserId(string userId)
         {

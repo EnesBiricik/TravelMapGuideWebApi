@@ -81,7 +81,7 @@ const getYearOptions = () => {
 
 // Kullanım
 const yearOptions = getYearOptions();
-console.log(yearOptions);
+//console.log(yearOptions);
 
 export default function PaymentModal({
   isFeatureModalVisible,

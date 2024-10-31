@@ -13,13 +13,14 @@ public class JwtTokenGenerator
         _jwtConfig = jwtConfig;
     }
 
-    public string GenerateToken(string username, string roleName, string userId)
+    public string GenerateToken(string username, string roleName, string userId, string userImg)
     {
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, username),
             new Claim(ClaimTypes.Role, roleName),
-            new Claim("userId", userId)
+            new Claim("userId", userId),
+            new Claim("userImg", userImg )
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.SecretKey));

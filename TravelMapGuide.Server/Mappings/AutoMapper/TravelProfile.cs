@@ -10,7 +10,7 @@ namespace TravelMapGuide.Server.Mappings.AutoMapper
         {
             CreateMap<Travel, CreateTravelModel>().ReverseMap();
             CreateMap<Travel, UpdateTravelModel>().ReverseMap();
-            CreateMap<Travel, Travel>().ReverseMap(); //listModel ? mb
+            CreateMap<Travel, Travel>().ReverseMap();
         }
     }
 }

@@ -15,9 +15,8 @@ namespace TravelMapGuide.Server.Data.Context
         private readonly IMongoCollection<Role> _rolesCollection;
         private readonly IMongoCollection<User> _usersCollection;
         private readonly IMongoCollection<Travel> _travelCollection;
-        //tabloları ekle.
+        //add tables.
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
         public MongoDbService(IOptions<DatabaseConfiguration> configuration)
         {
             try
@@ -29,27 +28,25 @@ namespace TravelMapGuide.Server.Data.Context
                 var databaseExists = mongoClient.ListDatabaseNames().ToList().Contains(configuration.Value.DatabaseName);
                 if (!databaseExists)
                 {
-                    Logger.Info("Veritabanı bulunamadı, yeni veritabanı oluşturulacak.");
+                    Logger.Info("Database not found, new database will be created.");
                 }
                 _database = mongoClient.GetDatabase(configuration.Value.DatabaseName);
 
                 _rolesCollection = CheckAndCreateCollection<Role>(CollectionNames.Roles);
                 _usersCollection = CheckAndCreateCollection<User>(CollectionNames.Users);
                 _travelCollection = CheckAndCreateCollection<Travel>(CollectionNames.Travels);
-                //tabloyu oluşturr.
+                //create table.
 
                 CreateDefaultRolesIfNotExists();
                 CreateAdminUserIfNotExists();
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "MongoDbService oluşturulurken bir hata meydana geldi.");
+                Logger.Error(ex, "An error occurred while creating the MongoDbService.");
                 throw;
             }
         }
-
         public IMongoDatabase? Database => _database;
-
         private IMongoCollection<T> CheckAndCreateCollection<T>(string collectionName)
         {
             try
@@ -58,16 +55,16 @@ namespace TravelMapGuide.Server.Data.Context
                 if (!collections.Contains(collectionName))
                 {
                     _database.CreateCollection(collectionName);
-                    Logger.Info($"{collectionName} koleksiyonu başarıyla oluşturuldu.");
+                    Logger.Info($"{collectionName} Collection created successfully.");
                 }
                 else
                 {
-                    Logger.Info($"{collectionName} koleksiyonu zaten mevcut.");
+                    Logger.Info($"{collectionName} collection already exists.");
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, $"{collectionName} koleksiyonu oluşturulurken bir hata meydana geldi.");
+                Logger.Error(ex, $"{collectionName} An error occurred while creating the collection.");
                 throw;
             }
 
@@ -80,8 +77,8 @@ namespace TravelMapGuide.Server.Data.Context
                 var userRole = Roles.User;
                 var adminRole = Roles.Admin;
 
-                var existingUserRole = _rolesCollection.Find(role => role.NormalizedName == userRole.ToUpper()).FirstOrDefault();
-                var existingAdminRole = _rolesCollection.Find(role => role.NormalizedName == adminRole.ToUpper()).FirstOrDefault();
+                var existingUserRole = _rolesCollection.Find(role => role.Name == userRole).FirstOrDefault();
+                var existingAdminRole = _rolesCollection.Find(role => role.Name == adminRole).FirstOrDefault();
 
                 if (existingUserRole == null)
                 {
@@ -105,7 +102,7 @@ namespace TravelMapGuide.Server.Data.Context
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Varsayılan roller oluşturulurken bir hata meydana geldi.");
+                Logger.Error(ex, "An error occurred while creating default roles.");
                 throw;
             }
         }
@@ -132,13 +129,13 @@ namespace TravelMapGuide.Server.Data.Context
                         };
 
                         _usersCollection.InsertOne(newUser);
-                        Logger.Info("Admin kullanıcı oluşturuldu.");
+                        Logger.Info("Admin user created.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Admin kullanıcı oluşturulurken bir hata meydana geldi.");
+                Logger.Error(ex, "An error occurred while creating the admin user.");
                 throw;
             }
         }

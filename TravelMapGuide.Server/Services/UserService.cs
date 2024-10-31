@@ -17,10 +17,8 @@ namespace TravelMapGuide.Server.Services
         private readonly IRoleRepository _roleRepository;
         private readonly JwtTokenGenerator _tokenGenerator;
         private readonly IBlacklistService _blacklistService;
-
-
-
-        public UserService(IUserRepository userRepository, IValidator<UserRegisterModel> createTravelValidator, JwtTokenGenerator jwtTokenGenerator, IRoleRepository roleRepository, IBlacklistService blacklistService, IValidator<UpdateUserModel> updateUserValidator)
+        private readonly IWebHostEnvironment _env;
+        public UserService(IUserRepository userRepository, IValidator<UserRegisterModel> createTravelValidator, JwtTokenGenerator jwtTokenGenerator, IRoleRepository roleRepository, IBlacklistService blacklistService, IValidator<UpdateUserModel> updateUserValidator, IWebHostEnvironment env)
         {
             _userRepository = userRepository;
             _createUserValidator = createTravelValidator;
@@ -28,8 +26,8 @@ namespace TravelMapGuide.Server.Services
             _roleRepository = roleRepository;
             _blacklistService = blacklistService;
             _updateUserValidator = updateUserValidator;
+            _env = env;
         }
-
         public async Task<Result<TokenResponseModel>> LoginUserAsync(UserLoginModel model)
         {
             var user = await _userRepository.GetUserByUsernameAsync(model.Username);
@@ -41,7 +39,7 @@ namespace TravelMapGuide.Server.Services
 
             if (user != null)
             {
-                var token = _tokenGenerator.GenerateToken(user.Username, user.Role.Name, user.Id);
+                var token = _tokenGenerator.GenerateToken(user.Username, user.Role.Name, user.Id, user.ImageUrl);
                 var date = DateTime.UtcNow;
                 var response = new TokenResponseModel
                 {
@@ -67,13 +65,25 @@ namespace TravelMapGuide.Server.Services
                 return Result.Failure("This Email is already taken.");
             }
 
-
             var passwordHash = PasswordHasher.HashPassword(model.Password);
 
             var userRole = await _roleRepository.GetRoleByNameAsync(Roles.User);
             if (userRole == null)
             {
                 return Result.Failure("Default user role not found.");
+            }
+
+            string imageUrl = null;
+            string imagePath = null;
+            if (model.Image != null && model.Image.Length > 0)
+            {
+                var fileName = Guid.NewGuid() + Path.GetExtension(model.Image.FileName);
+                imagePath = Path.Combine(_env.WebRootPath, "img", fileName); // wwwroot/img
+                using (var stream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await model.Image.CopyToAsync(stream);
+                }
+                imageUrl = fileName;
             }
 
             var user = new User
@@ -83,7 +93,7 @@ namespace TravelMapGuide.Server.Services
                 Email = model.Email,
                 RoleId = userRole.Id,
                 Role = userRole,
-                ImageUrl = model.ImageUrl
+                ImageUrl = imageUrl
             };
 
             var result = await _userRepository.CreateAsync(user);
@@ -91,8 +101,12 @@ namespace TravelMapGuide.Server.Services
             {
                 return Result<User>.Success(result, "User is Created.");
             }
-            return Result.Failure("An error occurred while creating the user.");
 
+            if (imagePath != null && System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
+            return Result.Failure("An error occurred while creating the user.");
         }
         public async Task<Result<UpdateUserResponseModel>> UpdateUserAsync(UpdateUserModel model, string oldToken)
         {
@@ -143,7 +157,7 @@ namespace TravelMapGuide.Server.Services
             if (updateResult != null)
             {
                 await _blacklistService.BlacklistTokenAsync(oldToken);
-                var newToken = _tokenGenerator.GenerateToken(updateResult.Username, updateResult.Role.Name, user.Id.ToString());
+                var newToken = _tokenGenerator.GenerateToken(updateResult.Username, updateResult.Role.Name, user.Id.ToString(), user.ImageUrl);
 
                 return Result<UpdateUserResponseModel>.Success(new UpdateUserResponseModel { User = updateResult, Token = newToken }, "Güncelleme işlemi başarılı.");
             }
@@ -155,28 +169,30 @@ namespace TravelMapGuide.Server.Services
             var user = await _userRepository.GetByIdAsync(model.UserId);
             if (user == null)
             {
-                return Result<UpdateUserResponseModel>.Failure("Kullanıcı bulunamadı");
+                return Result<UpdateUserResponseModel>.Failure("User not found.");
             }
 
             var role = await _roleRepository.GetByIdAsync(model.RoleId);
             if (role == null)
             {
-                return Result<UpdateUserResponseModel>.Failure("Belirtilen rol bulunamadı");
+                return Result<UpdateUserResponseModel>.Failure("The specified role could not be found.");
             }
 
             user.Role = role;
             var updateResult = await _userRepository.UpdateAsync(user);
 
+
+
             if (updateResult != null)
             {
-                var newToken = _tokenGenerator.GenerateToken(updateResult.Username, updateResult.Role.Name, model.UserId);
+                var newToken = _tokenGenerator.GenerateToken(updateResult.Username, updateResult.Role.Name, model.UserId, user.ImageUrl);
                 return Result<UpdateUserResponseModel>.Success(
                     new UpdateUserResponseModel
                     {
                         User = user,
                         Token = newToken
                     },
-                    "Rol Güncelleme işlemi başarılı."
+                    "Role Update operation successful."
                 );
             }
             return Result<UpdateUserResponseModel>.Failure("Failed to update user");
@@ -188,6 +204,22 @@ namespace TravelMapGuide.Server.Services
             if (string.IsNullOrEmpty(id) || !isValid)
             {
                 return Result<Travel>.Failure("Travel is not found. Id not matched.");
+            }
+
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return Result.Failure("User not found.");
+            }
+
+            if (!string.IsNullOrEmpty(user.ImageUrl))
+            {
+                string imagePath = Path.Combine(_env.WebRootPath, "img", user.ImageUrl); // wwwroot/img
+
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
             }
 
             await _userRepository.DeleteAsync(id);
@@ -203,7 +235,6 @@ namespace TravelMapGuide.Server.Services
             await _blacklistService.BlacklistTokenAsync(token);
             return await _blacklistService.IsTokenBlacklistedAsync(token);
         }
-
         public async Task<Result<IEnumerable<User>>> GetAllAsync()
         {
             try

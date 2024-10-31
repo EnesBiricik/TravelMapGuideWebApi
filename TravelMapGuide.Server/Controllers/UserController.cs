@@ -24,22 +24,6 @@ namespace TravelMapGuide.Server.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Register([FromForm] UserRegisterModel model)
         {
-            string imageUrl = null;
-            if (model.Image != null && model.Image.Length > 0)
-            {
-                var fileName = Guid.NewGuid() + Path.GetExtension(model.Image.FileName);
-                var imagePath = Path.Combine(_env.WebRootPath, "img", fileName); // wwwroot/img klasörüne yükleme
-
-                using (var stream = new FileStream(imagePath, FileMode.Create))
-                {
-                    await model.Image.CopyToAsync(stream);
-                }
-
-                imageUrl = fileName; // URL'yi güncelle
-            }
-
-            model.ImageUrl = imageUrl;
-
             var user = await _userService.RegisterUserAsync(model);
             if (user.IsSuccess)
             {
@@ -57,28 +41,6 @@ namespace TravelMapGuide.Server.Controllers
                 return Ok(result.Data);
             }
             return Unauthorized(result.Message);
-         }
-
-        //token refresh araştırması
-        [Authorize]
-        [HttpGet("[action]")]
-        public async Task<IActionResult> Test()
-        {
-            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-            if (authHeader != null && authHeader.StartsWith("Bearer "))
-            {
-                var token = authHeader.Substring("Bearer ".Length).Trim();
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-
-                var username = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Name).Value;
-                var id = jwtToken.Claims.First(claim => claim.Type == "userId").Value;
-                var role = jwtToken.Claims.First(claim => claim.Type == ClaimTypes.Role).Value;
-
-                return Ok(new { Username = username });
-            }
-
-            return Unauthorized();
         }
 
         [Authorize]
@@ -141,9 +103,9 @@ namespace TravelMapGuide.Server.Controllers
             var result = await _userService.LogoutAsync(token);
             if (result)
             {
-                return Ok("Çıkış yapıldı.");
+                return Ok("Exit done.");
             }
-            return BadRequest("Çıkış yapılamadı.");
+            return BadRequest("Could not log out.");
         }
 
         [Authorize(Roles = "Admin")]

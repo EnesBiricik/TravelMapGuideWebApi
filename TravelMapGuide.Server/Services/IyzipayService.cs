@@ -30,15 +30,6 @@ public class IyzipayService
         request.PaymentChannel = PaymentChannel.WEB.ToString();
         request.PaymentGroup = PaymentGroup.PRODUCT.ToString();
 
-        //PaymentCard paymentCard = new PaymentCard();
-        //paymentCard.CardHolderName = "John Doe";
-        //paymentCard.CardNumber = "5528790000000008";
-        //paymentCard.ExpireMonth = "12";
-        //paymentCard.ExpireYear = "2030";
-        //paymentCard.Cvc = "123";
-        //paymentCard.RegisterCard = 0;
-        //request.PaymentCard = paymentCard;
-
         // Kart bilgileri
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.CardHolderName = cardHolderName;

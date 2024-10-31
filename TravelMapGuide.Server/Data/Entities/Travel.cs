@@ -11,7 +11,7 @@
         public DateTime Date { get; set; }
         public int StarReview { get; set; } = 0;
         public int Cost { get; set; }
-        public string ImageUrl { get; set; } // Resim URL'si
+        public string ImageUrl { get; set; }
         public bool IsFeatured { get; set; }
     }
 }

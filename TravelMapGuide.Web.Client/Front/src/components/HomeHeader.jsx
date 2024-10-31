@@ -34,8 +34,8 @@ const suffix = (
 export default function HomeHeader({ props }) {
   const { isModalVisible, setIsModalVisible, isAuth } = props;
   const token = localStorage.getItem("jwtToken");
-  const decodedToken = jwtDecode(token);
-  const userImg = decodedToken.userImg;
+  const decodedToken = token ? jwtDecode(token) : null;
+  const userImg = decodedToken?.userImg;
 
   const navigate = useNavigate();
 

@@ -9,7 +9,7 @@ namespace TravelMapGuide.Server.Data.Repositories.Concrete
         public async Task AddTokenAsync(string token)
         {
             _blacklistedTokens.Add(token);
-            await Task.CompletedTask; // Async metod uyumluluğu için.
+            await Task.CompletedTask;
         }
 
         public async Task<bool> IsTokenExistsAsync(string token)

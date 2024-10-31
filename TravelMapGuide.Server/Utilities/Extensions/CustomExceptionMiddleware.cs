@@ -22,7 +22,7 @@ namespace TravelMapGuide.Server.Utilities.Extensions
 
                         await context.Response.WriteAsJsonAsync(new
                         {
-                            error = "Bir hata oluştu.",
+                            error = "An error occurred.",
                             details = ex.Message,
                             statusCode = context.Response.StatusCode,
                             errorPage = "/error"

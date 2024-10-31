@@ -5,6 +5,7 @@ using TravelMapGuide.Server.Data.Entities;
 using TravelMapGuide.Server.Data.Repositories.Abstract;
 using TravelMapGuide.Server.Utilities.Helpers;
 using TravelMapGuide.Server.Models;
+using System.Diagnostics;
 
 namespace TravelMapGuide.Server.Services
 {
@@ -15,14 +16,16 @@ namespace TravelMapGuide.Server.Services
         private readonly ITravelRepository _travelRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _env;
 
-        public TravelService(ITravelRepository travelRepository, IValidator<CreateTravelModel> createTravelValidator, IValidator<UpdateTravelModel> updateTravelValidator, IMapper mapper, IUserRepository userRepository)
+        public TravelService(ITravelRepository travelRepository, IValidator<CreateTravelModel> createTravelValidator, IValidator<UpdateTravelModel> updateTravelValidator, IMapper mapper, IUserRepository userRepository, IWebHostEnvironment env)
         {
             _travelRepository = travelRepository;
             _createTravelValidator = createTravelValidator;
             _updateTravelValidator = updateTravelValidator;
             _mapper = mapper;
             _userRepository = userRepository;
+            _env = env;
         }
 
         public async Task<Result> CreateAsync(CreateTravelModel model)
@@ -34,16 +37,59 @@ namespace TravelMapGuide.Server.Services
                 var errorMessages = string.Join(", ", result.Errors.Select(e => e.ErrorMessage));
                 return Result.Failure("Validation error caught.", errorMessages);
             }
+
             var travel = _mapper.Map<Travel>(model);
-            travel.user = await _userRepository.GetByIdAsync(model.UserId);
+            var user = await _userRepository.GetByIdAsync(model.UserId);
+            if (user == null)
+            {
+                return Result.Failure("User not found.");
+            }
+
+            travel.user = new User
+            {
+                Username = user.Username,
+                Email = user.Email,
+                ImageUrl = user.ImageUrl,
+                Id = user.Id
+            };
             travel.IsFeatured = false;
+
+            string imagePath = null;
+
+            if (model.Image != null && model.Image.Length > 0)
+            {
+                var fileName = Guid.NewGuid() + Path.GetExtension(model.Image.FileName);
+                imagePath = Path.Combine(_env.WebRootPath, "img", fileName); // wwwroot/img
+
+                try
+                {
+                    using (var stream = new FileStream(imagePath, FileMode.Create))
+                    {
+                        await model.Image.CopyToAsync(stream);
+                    }
+                    travel.ImageUrl = fileName;
+                }
+                catch (Exception ex)
+                {
+                    if (imagePath != null && System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+                    return Result.Failure("An error occurred while saving the image.", ex.Message);
+                }
+            }
+
             try
             {
                 var entity = await _travelRepository.CreateAsync(travel);
-                return Result<Travel>.Success(entity, "Travel is Created.");
+                return Result<Travel>.Success(entity, "Travel is created.");
             }
             catch (Exception e)
             {
+                if (imagePath != null && System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
                 return Result.Failure("An error occurred while creating the travel.", e.Message);
             }
         }
@@ -81,10 +127,22 @@ namespace TravelMapGuide.Server.Services
                 return Result<Travel>.Failure("Travel is not found. Id not matched.");
             }
 
+            var travel = await _travelRepository.GetByIdAsync(id);
+            if (travel == null)
+            {
+                return Result.Failure("Travel not found.");
+            }
+
+            string imagePath = Path.Combine(_env.WebRootPath, "img", travel.ImageUrl); // wwwroot/img
+
+            if (!string.IsNullOrEmpty(travel.ImageUrl) && System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
             await _travelRepository.DeleteAsync(id);
             return Result.Success();
         }
-        public async Task<Result> UpdateFeatureStatus (string id)
+        public async Task<Result> UpdateFeatureStatus(string id)
         {
             bool isValid = Regex.IsMatch(id, @"^[a-fA-F0-9]{24}$");
             if (string.IsNullOrEmpty(id) || !isValid)
@@ -97,7 +155,7 @@ namespace TravelMapGuide.Server.Services
             {
                 return Result<Travel>.Failure("Travel is not found.");
             }
-            
+
             if (!data.IsFeatured)
             {
                 data.IsFeatured = true;
@@ -111,7 +169,6 @@ namespace TravelMapGuide.Server.Services
             try
             {
                 var data = await _travelRepository.GetAllAsync();
-
                 return Result<IEnumerable<Travel>>.Success(data);
             }
             catch (Exception ex)
@@ -149,6 +206,17 @@ namespace TravelMapGuide.Server.Services
                 return Result<List<Travel>>.Failure("Travel is not found.");
             }
             return Result<List<Travel>>.Success(data);
+        }
+        public async Task<bool> UserIsValid(string travelId)
+        {
+            var user = JwtTokenReader.ReadUser();
+            if (string.IsNullOrEmpty(user.UserId))
+            {
+                return false;
+            }
+
+            var travelResult = await GetByIdAsync(travelId);
+            return travelResult.IsSuccess && travelResult.Data != null && travelResult.Data.userId == user.UserId;
         }
     }
 }

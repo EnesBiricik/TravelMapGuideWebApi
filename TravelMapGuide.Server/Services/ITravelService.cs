@@ -13,5 +13,6 @@ namespace TravelMapGuide.Server.Services
         Task<Result> DeleteAsync(string id);
         Task<Result<List<Travel>>> GetByUserIdAsync(string id);
         Task<Result> UpdateFeatureStatus(string id);
+        Task<bool> UserIsValid(string travelId);
     }
 }

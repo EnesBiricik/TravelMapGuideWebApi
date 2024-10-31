@@ -19,5 +19,34 @@ namespace TravelMapGuide.Server.Data.Repositories.Concrete
         {
             return await _travelCollection.Find(travel => travel.userId == userId).ToListAsync();
         }
+
+        public async Task<IEnumerable<Travel>> GetAllAsync()
+        {
+            var travels = await _travelCollection
+                .Find(_ => true)
+                .Project(t => new Travel
+                {
+                    userId = t.userId,
+                    user = new User
+                    {
+                        Username = t.user.Username,
+                        Email = t.user.Email,
+                        ImageUrl = t.user.ImageUrl,
+                        Id = t.user.Id
+                    },
+                    Name = t.Name,
+                    Description = t.Description,
+                    Latitude = t.Latitude,
+                    Longitude = t.Longitude,
+                    Date = t.Date,
+                    StarReview = t.StarReview,
+                    Cost = t.Cost,
+                    ImageUrl = t.ImageUrl,
+                    IsFeatured = t.IsFeatured,
+                    Id = t.Id
+                })
+                .ToListAsync();
+            return travels;
+        }
     }
 }

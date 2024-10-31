@@ -29,12 +29,14 @@ namespace TravelMapGuide.Server.Utilities.Helpers
                 var username = jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
                 var userId = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "userId")?.Value;
                 var roleName = jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Role)?.Value;
+                var userImg = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "userImg")?.Value;
 
                 return new ClaimTokenResponseModel
                 {
                     UserName = username,
                     UserId = userId,
-                    RoleName = roleName
+                    RoleName = roleName,
+                    UserImg = userImg,
                 };
             }
             return null;

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../index.css';
+import '../assets/styles/index.css';
+import { API_ENDPOINTS } from '../constants/Endpoints';
 
 function Signup () {
     const [email, setEmail] = useState('');
@@ -24,7 +25,7 @@ function Signup () {
         formData.append('Image', profilePhoto);
 
         try {
-            const response = await axios.post('http://localhost:7018/api/User/Register', formData, {
+            const response = await axios.post(`${API_ENDPOINTS.DEFAULT_URL}api/User/Register`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

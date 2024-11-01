@@ -19,8 +19,6 @@ services:
 
   nginx:
     image: nginx:alpine
-    volumes:
-      - ./nginx/nginx.config:/etc/nginx/nginx.conf
     ports:
       - "80:80"
     depends_on:

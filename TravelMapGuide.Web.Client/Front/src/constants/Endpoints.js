@@ -4,5 +4,5 @@ export const API_ENDPOINTS = {
     LOCAL_URL: "https://localhost:7018/",
     DOCKER_URL: "http://localhost:7018/",
 
-    DEFAULT_URL: "https://localhost:7018/",
+    DEFAULT_URL: "http://localhost:7018/",
 };

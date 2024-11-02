@@ -9,5 +9,5 @@ RUN dotnet publish -c Release -o /out
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
 COPY --from=build /out .
-EXPOSE 7018
+EXPOSE 80
 ENTRYPOINT ["dotnet", "TravelMapGuide.Server.dll"]

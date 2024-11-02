@@ -2,17 +2,6 @@ pipeline {
     agent any
 
     stages {
-        
-        stage('nginx Debug') {
-            steps {
-                sh '''
-                    pwd
-                    ls -la
-                    ls -la nginx/ || echo "nginx klasörü yok!"
-                    find . -name "nginx.conf" || echo "nginx.conf bulunamadı!"
-                '''
-            }
-        }
 
         stage('Docker Compose Down') {
             steps {

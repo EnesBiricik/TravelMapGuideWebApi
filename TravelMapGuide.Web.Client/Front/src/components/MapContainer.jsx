@@ -90,7 +90,7 @@ export default function MapContainer({ props }) {
         }}
         defaultZoom={3}
         defaultCenter={{ lat: 37.870737, lng: 32.504982 }}
-        mapId="f35f13567816558a"
+        mapId="Your_Map_Id"
         options={options}
       >
         <PoiMarkers pois={locations} onMarkerClick={handleMarkerClick} />

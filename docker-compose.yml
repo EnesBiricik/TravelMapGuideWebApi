@@ -20,7 +20,9 @@ services:
   nginx:
     image: nginx:alpine
     volumes:
-      - ./nginx:/etc/nginx
+      - type: bind
+        source: ./nginx/nginx.config
+        target: /etc/nginx/nginx.conf
     ports:
       - "80:80"
     depends_on:

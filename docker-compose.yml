@@ -4,7 +4,7 @@ services:
       context: ./TravelMapGuide.Server
       dockerfile: Dockerfile
     ports:
-      - "7018:80"
+      - "7018:7018"
     networks:
       - app-network
       
@@ -13,19 +13,20 @@ services:
       context: ./TravelMapGuide.Web.Client/Front
       dockerfile: Dockerfile
     ports:
-      - "3000:80"
+      - "3000:3000"
     networks:
       - app-network
 
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    depends_on:
-      - webclient
-      - api
-    networks:
-      - app-network
+  # nginx:
+  #   image: nginx:alpine
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - webclient
+  #     - api
+  #   networks:
+  #     - app-network
+
 networks:
   app-network:
     driver: bridge

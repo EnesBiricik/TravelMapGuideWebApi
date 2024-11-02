@@ -21,7 +21,7 @@ services:
     image: nginx:alpine
     volumes:
       - type: bind
-        source: ./nginx/nginx.conf
+        source: ${PWD}/nginx/nginx.conf
         target: /etc/nginx/nginx.conf
     ports:
       - "80:80"
